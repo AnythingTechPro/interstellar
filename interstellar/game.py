@@ -80,6 +80,14 @@ class GameDisplay(object):
         self.root.geometry('%dx%d+%d+%d' % (self._width, self._height, self._x, self._y))
 
     @property
+    def position(self):
+        return (self._x, self._y)
+
+    @position.setter
+    def position(self, position):
+        self.x, self.y = position
+
+    @property
     def caption(self):
         return self._caption
 
@@ -103,8 +111,8 @@ class Game(object):
         self.display = GameDisplay()
         self.display.size = (width, height)
         self.display.caption = caption
-        self.display.x, self.display.y = self.display.root.winfo_screenwidth() / 2 - self.display.width / 2, \
-            self.display.root.winfo_screenheight() / 2 - self.display.height / 2
+        self.display.position = self.display.root.winfo_screenwidth() / 2 - self.display.width / 2, \
+            self.display.root.winfo_screenheight() / 2 - self.display.height
 
         self.audio_manager = audio.AudioManager()
         self.shutdown = False
@@ -236,7 +244,7 @@ class MainMenu(Scene):
             'assets/audio/music/main_menu_1.wav',
             'assets/audio/music/main_menu_2.wav'])
 
-        self.music = self.music_array.select()
+        self.music = self.music_array.select(True)
 
         self.logo = resource.ResourceImage(self.root, 'assets/menu/logo.png')
         self.logo.position = (self.master.width / 2, self.master.height / 4)
@@ -260,7 +268,7 @@ class MainMenu(Scene):
     def setup(self):
         super(MainMenu, self).setup()
 
-        self.music.play(True)
+        self.music.play()
 
         self.play_button.clicked_handler = self.__play
         self.quit_button.clicked_handler = self.__quit
@@ -297,30 +305,50 @@ class OptionsMenu(Scene):
     def __init__(self, root, master):
         super(OptionsMenu, self).__init__(root, master)
 
-        self.music = self.root.audio_manager.load('assets/audio/music/options_menu.wav')
+        self.music = self.root.audio_manager.load('assets/audio/music/options_menu.wav', True)
 
         self.options_label = resource.ResourceLabel(40, 'Pixeled', False)
         self.options_label.position = (self.master.width / 2, self.master.height / 10)
         self.options_label.text = 'Game Options:'
         self.options_label.render(self.canvas)
 
+        self.music_label = resource.ResourceLabel(40, 'Pixeled', False)
+        self.music_label.position = (self.master.width / 2.5, self.master.height / 3)
+        self.music_label.text = 'Music:'
+        self.music_label.render(self.canvas)
+
+        self.music_button = resource.ResourceLabel(40, 'Pixeled')
+        self.music_button.position = (self.master.width / 1.5, self.master.height / 3)
+        self.music_button.text = self.music_active
+        self.music_button.render(self.canvas)
+
         self.back_button = resource.ResourceLabel(40, 'Pixeled')
         self.back_button.position = (self.master.width / 10.7, (self.master.height / 4) * 3.7)
         self.back_button.text = 'Back'
         self.back_button.render(self.canvas)
 
+    @property
+    def music_active(self):
+        return 'ON' if self.root.audio_manager.enabled else 'OFF'
+
     def setup(self):
         super(OptionsMenu, self).setup()
 
-        self.music.play(True)
-
+        self.music.play()
         self.back_button.clicked_handler = self.__back
+        self.music_button.clicked_handler = self.__toggle_audio
 
     def __back(self):
         self.root.current_scene = MainMenu
 
+    def __toggle_audio(self):
+        self.root.audio_manager.toggle()
+        self.music_button.text = self.music_active
+
     def update(self):
         self.options_label.update()
+        self.music_label.update()
+        self.music_button.update()
         self.back_button.update()
 
         super(OptionsMenu, self).update()
@@ -328,6 +356,8 @@ class OptionsMenu(Scene):
     def destroy(self):
         self.root.audio_manager.unload(self.music)
         self.options_label.destroy()
+        self.music_label.destroy()
+        self.music_button.destroy()
         self.back_button.destroy()
 
         super(OptionsMenu, self).destroy()
@@ -342,8 +372,8 @@ class GameLevel(Scene):
             'assets/audio/music/level_1.wav',
             'assets/audio/music/level_2.wav'])
 
-        self.music = self.music_array.select()
-        self.ending_music = self.root.audio_manager.load('assets/audio/music/ending.wav')
+        self.music = self.music_array.select(True)
+        self.ending_music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
 
         self.background = resource.ResourceImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
@@ -357,7 +387,7 @@ class GameLevel(Scene):
     def setup(self):
         super(GameLevel, self).setup()
 
-        self.music.play(True)
+        self.music.play()
         self.ship.setup()
 
     def update(self):

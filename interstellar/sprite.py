@@ -179,9 +179,9 @@ class ShipController(SpriteController):
 
     def launch_projectile(self):
         if self.fire_sound:
-            self.music_array.deselect(True)
+            self.music_array.deselect(use_pygame=True)
 
-        self.fire_sound = self.music_array.select(True)
+        self.fire_sound = self.music_array.select(False, use_pygame=True)
         self.fire_sound.play()
 
         bullet0 = resource.ResourceImage(self._parent.root, 'assets/bullet.png')

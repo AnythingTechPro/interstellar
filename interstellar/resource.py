@@ -165,6 +165,9 @@ class ResourceLabel(node.Node):
     def text(self, text):
         self._text = text
 
+        if self.label:
+            self.label['text'] = text
+
     @property
     def label(self):
         return self._label
@@ -285,22 +288,26 @@ class ResourceAudioArray(object):
         self.audio = audio
         self.current = None
 
-    def select(self, use_pygame=False):
+    def select(self, *args, **kwargs):
+        use_pygame = kwargs.get('use_pygame', False)
+
         if self.current:
             self.deselect()
 
         audio_filename = random.choice(self.audio)
 
         if not use_pygame:
-            self.current = self.root.audio_manager.load(audio_filename)
+            self.current = self.root.audio_manager.load(audio_filename, *args, **kwargs)
         else:
             self.current = pygame.mixer.Sound(audio_filename)
 
         return self.current
 
-    def deselect(self, use_pygame=False):
+    def deselect(self, *args, **kwargs):
+        use_pygame = kwargs.get('use_pygame', False)
+
         if not use_pygame:
-            self.root.audio_manager.unload(self.current)
+            self.root.audio_manager.unload(self.current, *args, **kwargs)
         else:
             self.current.stop()
 
