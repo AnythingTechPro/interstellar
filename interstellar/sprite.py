@@ -162,13 +162,13 @@ class ShipController(SpriteController):
                 self.destroy_projectile(projectile)
                 continue
 
-            if self.collision_check_projectile(projectile):
+            if self.check_collisions(projectile):
                 self.destroy_projectile(projectile)
                 continue
 
             projectile.y -= random.random() * self.projectile_speed * 2
 
-    def collision_check_projectile(self, projectile):
+    def check_collisions(self, projectile):
         for asteroid in self._parent.asteroids:
 
             if projectile.collide_point(asteroid.image):

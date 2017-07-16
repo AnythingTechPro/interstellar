@@ -13,6 +13,8 @@ class GameDisplay(object):
         self.root = Tkinter.Tk(sync=True)
         self._width = 0
         self._height = 0
+        self._x = 0
+        self._y = 0
         self._caption = ''
 
     @property
@@ -21,8 +23,7 @@ class GameDisplay(object):
 
     @size.setter
     def size(self, size):
-        self._width, self._height = size
-        self.root.geometry('%dx%d' % (self._width, self._height))
+        self.width, self.height = size
 
     @property
     def width(self):
@@ -31,12 +32,52 @@ class GameDisplay(object):
 
         return self._width
 
+    @width.setter
+    def width(self, width):
+        if width is self._width:
+            return
+
+        self._width = width
+        self.root.geometry('%dx%d' % (self._width, self._height))
+
     @property
     def height(self):
         #if self._height != self.root.winfo_height():
         #    self._height = self.root.winfo_height()
 
         return self._height
+
+    @height.setter
+    def height(self, height):
+        if height is self._height:
+            return
+
+        self._height = height
+        self.root.geometry('%dx%d' % (self._width, self._height))
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, x):
+        if x is self._x:
+            return
+
+        self._x = x
+        self.root.geometry('%dx%d+%d+%d' % (self._width, self._height, self._x, self._y))
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, y):
+        if y is self._y:
+            return
+
+        self._y = y
+        self.root.geometry('%dx%d+%d+%d' % (self._width, self._height, self._x, self._y))
 
     @property
     def caption(self):
@@ -62,6 +103,9 @@ class Game(object):
         self.display = GameDisplay()
         self.display.size = (width, height)
         self.display.caption = caption
+        self.display.x, self.display.y = self.display.root.winfo_screenwidth() / 2 - self.display.width / 2, \
+            self.display.root.winfo_screenheight() / 2 - self.display.height / 2
+
         self.audio_manager = audio.AudioManager()
         self.shutdown = False
         self._last_scene = None
