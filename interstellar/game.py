@@ -94,6 +94,9 @@ class Game(object):
         self.display.destroy()
 
     def execute(self):
+        for event in pygame.event.get():
+            pass
+
         self.update()
         self.display.update()
 
@@ -128,6 +131,7 @@ class Scene(object):
             highlightthickness=0)
 
         self.canvas.focus_set()
+        self.canvas.pack(fill=Tkinter.BOTH, expand=True, anchor=Tkinter.CENTER)
 
     def setup(self):
         if self.active:
@@ -138,7 +142,6 @@ class Scene(object):
         if self.can_pause:
             self.bind('<Return>', self.__pause)
 
-        self.canvas.pack(fill=Tkinter.BOTH, expand=True, anchor=Tkinter.CENTER)
         self.active = True
 
     def update(self):

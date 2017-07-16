@@ -1,10 +1,11 @@
 import os
-from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 
 FR_PRIVATE = 0x10
 FR_NOT_ENUM = 0x20
 
 def load_font(filepath, private=True, enumerable=False):
+    from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
+
     '''
     Makes fonts located in file `filepath` available to the font system.
 

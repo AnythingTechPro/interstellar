@@ -78,6 +78,15 @@ class ResourceImage(node.Node):
 
         return self._height
 
+    def collide_point(self, target):
+        min_x, min_y = self.x - self.width / 2, self.y - self.height / 2
+        min_tx, min_ty = target.x - target.width / 2, target.y - target.height / 2
+
+        max_x, max_y = self.x + self.width / 2, self.y + self.height / 2
+        max_tx, max_ty = target.x + target.width / 2, target.y + target.height / 2
+
+        return min_x <= max_tx and min_x >= min_tx and min_y <= max_ty and min_y >= min_ty
+
     def move(self):
         self._parent.coords(self._id, (self._x, self._y))
 

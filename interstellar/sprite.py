@@ -143,7 +143,7 @@ class ShipController(SpriteController):
         if self.moving_forward and not self.image.y - self.image.height / 2 <= 0:
             self.image.y -= self.speed
         elif self.moving_backward and not self.image.y + self.image.height / 2 >= self._parent.root.display.height:
-            self.image.y += self.speed
+            self.image.y += self.speed / 2
 
         if self.moving_right and not self.image.x + self.image.width / 2 >= self._parent.root.display.width:
             self.image.x += self.speed
@@ -162,7 +162,20 @@ class ShipController(SpriteController):
                 self.destroy_projectile(projectile)
                 continue
 
-            projectile.y -= self.projectile_speed
+            if self.collision_check_projectile(projectile):
+                self.destroy_projectile(projectile)
+                continue
+
+            projectile.y -= random.random() * self.projectile_speed * 2
+
+    def collision_check_projectile(self, projectile):
+        for asteroid in self._parent.asteroids:
+
+            if projectile.collide_point(asteroid.image):
+                self._parent.remove_asteroid(asteroid)
+                return True
+
+        return False
 
     def launch_projectile(self):
         if self.fire_sound:
