@@ -74,6 +74,15 @@ class ShipController(SpriteController):
     def __init__(self, sprite):
         super(ShipController, self).__init__(sprite)
 
+        self.music_array = resource.ResourceAudioArray(self._parent.root, [
+            'assets/audio/sfx/laser_fire_0.wav',
+            'assets/audio/sfx/laser_fire_1.wav',
+            'assets/audio/sfx/laser_fire_2.wav',
+            'assets/audio/sfx/laser_fire_3.wav',
+        ])
+
+        self.fire_sound = None
+
         self.speed = 15
         self.projectile_speed = 20
 
@@ -85,15 +94,6 @@ class ShipController(SpriteController):
 
         self.projectiles = []
         self.maximum_projectiles = 15
-
-        self.music_array = resource.ResourceAudioArray(self._parent.root, [
-            'assets/audio/sfx/laser_fire_0.wav',
-            'assets/audio/sfx/laser_fire_1.wav',
-            'assets/audio/sfx/laser_fire_2.wav',
-            'assets/audio/sfx/laser_fire_3.wav',
-        ])
-
-        self.fire_sound = None
 
     def setup(self):
         super(ShipController, self).setup()
@@ -151,7 +151,7 @@ class ShipController(SpriteController):
             self.image.x -= self.speed
 
         if self.firing and len(self.projectiles) < self.maximum_projectiles:
-            self.launch_projectile()
+            self.fire_projectile()
 
         self.update_projectiles()
 
@@ -177,7 +177,7 @@ class ShipController(SpriteController):
 
         return False
 
-    def launch_projectile(self):
+    def fire_projectile(self):
         if self.fire_sound:
             self.music_array.deselect(use_pygame=True)
 
@@ -200,10 +200,15 @@ class ShipController(SpriteController):
         projectile.destroy()
         self.projectiles.remove(projectile)
 
+    def destroy_projectiles(self):
+        for projectile in self.projectiles:
+            self.destroy_projectile(projectile)
+
     def destroy(self):
         super(ShipController, self).destroy()
 
         self.music_array.destroy()
+        self.fire_sound = None
 
         self._parent.unbind('<Up>')
         self._parent.unbind('<KeyRelease-Up>')
@@ -215,6 +220,8 @@ class ShipController(SpriteController):
         self._parent.unbind('<KeyRelease-Left>')
         self._parent.unbind('<space>')
         self._parent.unbind('<KeyRelease-space>')
+
+        self.destroy_projectiles()
 
 class Ship(Sprite):
 
