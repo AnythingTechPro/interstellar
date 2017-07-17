@@ -1,5 +1,6 @@
 import os
 import random
+import time
 import pygame
 import Tkinter
 import tkFont
@@ -365,10 +366,6 @@ class ResourceAudioArray(object):
 
     def select(self, *args, **kwargs):
         use_pygame = kwargs.get('use_pygame', False)
-
-        if self.current:
-            self.deselect()
-
         audio_filename = random.choice(self.audio)
 
         if not use_pygame:
@@ -394,3 +391,55 @@ class ResourceAudioArray(object):
         self.root = None
         self.audio = []
         self.current = None
+
+class ResourceTimer(object):
+    """
+    An object that manages the amount time since it was constructed
+    """
+
+    __slots__ = ('start_time')
+
+    def __init__(self):
+        self.start_time = time.time()
+
+    @property
+    def current_time(self):
+        return time.time() - self.start_time
+
+    def destroy(self):
+        self.start_time = 0
+
+class ResourceTimerLabel(ResourceLabel):
+    """
+    A label object that displays time from a ResourceTimer
+    """
+
+    __slots__ = ('timer')
+
+    def __init__(self, *args, **kwargs):
+        super(ResourceTimerLabel, self).__init__(*args, **kwargs)
+
+        self.timer = ResourceTimer()
+        self.text = self.current_time
+
+    @property
+    def current_time(self):
+        minutes, seconds = divmod(self.timer.current_time, 60)
+
+        if not minutes:
+            string = 'Time: %d' % seconds
+        else:
+            string = 'Time: %d:%d' % (minutes, seconds)
+
+        return string
+
+    def update(self):
+        self.text = self.current_time
+
+        super(ResourceTimerLabel, self).update()
+
+    def destroy(self):
+        self.timer.destroy()
+        self.timer = None
+
+        super(ResourceTimerLabel, self).setup()

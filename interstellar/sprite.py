@@ -19,6 +19,9 @@ class Sprite(node.Node):
         self.image = image
         self.controller = controller(self)
 
+    def die(self, *args, **kwargs):
+        pass
+
     def setup(self):
         self.controller.setup()
 
@@ -30,6 +33,9 @@ class Sprite(node.Node):
 
         self.image.destroy()
         self.image = None
+
+        self.controller.destroy()
+        self.controller = None
 
 class SpriteController(node.Node):
     """
@@ -66,8 +72,8 @@ class SpriteController(node.Node):
     def destroy(self):
         super(SpriteController, self).destroy()
 
-        self.sprite.destroy()
         self.sprite = None
+        self.speed = 0
 
 class ShipController(SpriteController):
 
@@ -162,17 +168,17 @@ class ShipController(SpriteController):
                 self.destroy_projectile(projectile)
                 continue
 
-            if self.check_collisions(projectile):
+            if self.check_projectile_collisions(projectile):
                 self.destroy_projectile(projectile)
                 continue
 
             projectile.y -= random.random() * self.projectile_speed * 2
 
-    def check_collisions(self, projectile):
+    def check_projectile_collisions(self, projectile):
         for asteroid in self._parent.asteroids:
 
             if projectile.collide_point(asteroid.image):
-                self._parent.remove_asteroid(asteroid)
+                asteroid.die()
                 return True
 
         return False
@@ -180,6 +186,7 @@ class ShipController(SpriteController):
     def fire_projectile(self):
         if self.fire_sound:
             self.music_array.deselect(use_pygame=True)
+            self.fire_sound = None
 
         self.fire_sound = self.music_array.select(False, use_pygame=True)
         self.fire_sound.play()
@@ -260,3 +267,7 @@ class Asteroid(Sprite):
         image.render(parent.canvas)
 
         super(Asteroid, self).__init__(parent, image, controller)
+
+    def die(self):
+        #self._parent.explosion_sound.play()
+        self._parent.remove_asteroid(self)
