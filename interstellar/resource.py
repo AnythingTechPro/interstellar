@@ -111,14 +111,44 @@ class ResourceScrolledImage(node.Node):
     """
 
     def __init__(self, root, filename):
-        super(ResourceScrolledImage, self).__init__()
+        super(ResourceScrolledImage, self).__init__(root)
 
         self.image_0 = ResourceImage(root, filename)
         self.image_1 = ResourceImage(root, filename)
+        self.speed = 0
+
+    @node.Node.x.setter
+    def x(self, x):
+        self.image_0.x = x
+        self.image_1.x = x
+
+    @node.Node.y.setter
+    def y(self, y):
+        self.image_0.y = y
+        self.image_1.y = self.image_0.y - self.image_1.height
+
+    @node.Node.position.setter
+    def position(self, position):
+        self.x, self.y = position
+
+    def update(self):
+        if self.image_0.y - self.image_0.height / 2 >= self._parent.display.height:
+            self.image_0.y = self.image_1.y - self.image_0.height
+
+        if self.image_1.y - self.image_1.height / 2 >= self._parent.display.height:
+            self.image_1.y = self.image_0.y - self.image_1.height
+
+        self.image_0.y += self.speed
+        self.image_1.y += self.speed
 
     def render(self, parent):
         self.image_0.render(parent)
         self.image_1.render(parent)
+
+    def destroy(self):
+        self.image_0.destroy()
+        self.image_1.destroy()
+        self.speed = 0
 
 class ResourceLabelError(node.NodeError):
     """
@@ -277,9 +307,6 @@ class ResourceLabel(node.Node):
     def clicked(self):
         pass
 
-    def update(self):
-        pass
-
     def move(self):
         self.label.place(x=self._x, y=self._y, anchor=Tkinter.CENTER)
 
@@ -307,8 +334,8 @@ class ResourceLabel(node.Node):
 
         if self._label:
             self.unbindall()
+            self._label.destroy()
 
-        self._label.destroy()
         self.font_size = 0
         self.font_family = 0
         self.bind_events = False

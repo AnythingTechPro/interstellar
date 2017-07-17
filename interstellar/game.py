@@ -368,8 +368,9 @@ class GameLevel(Scene):
         self.music = self.music_array.select(True)
         self.ending_music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
 
-        self.background = resource.ResourceImage(self.root, 'assets/stars.png')
+        self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
+        self.background.speed = 1.0
         self.background.render(self.canvas)
 
         self.paused_label = resource.ResourceLabel(40, bind_events=False)
@@ -396,6 +397,7 @@ class GameLevel(Scene):
         if len(self.asteroids) < self.maximum_asteroids:
             self.add_asteroid()
 
+        self.background.update()
         super(GameLevel, self).update()
 
     def add_asteroid(self):

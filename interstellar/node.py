@@ -11,8 +11,8 @@ class Node(object):
 
     __slots__ = ('_parent', '_id', '_x', '_y', '_width', '_height', '_rotation')
 
-    def __init__(self):
-        self._parent = None
+    def __init__(self, parent=None):
+        self._parent = parent
         self._id = None
         self._x = 0
         self._y = 0
