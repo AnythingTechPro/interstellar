@@ -371,7 +371,7 @@ class GameLevel(Scene):
 
         self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
-        self.background.speed = 1
+        self.background.speed = 5
         self.background.render(self.canvas)
 
         self.paused_label = resource.ResourceLabel(40, bind_events=False)
@@ -385,7 +385,7 @@ class GameLevel(Scene):
         self.ship = sprite.Ship(self, sprite.ShipController)
 
         self.asteroids = []
-        self.maximum_asteroids = 20
+        self.maximum_asteroids = 25
 
     def setup(self):
         super(GameLevel, self).setup()
