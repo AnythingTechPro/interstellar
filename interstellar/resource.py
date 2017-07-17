@@ -105,6 +105,21 @@ class ResourceImage(node.Node):
         del self.image
         self.image = None
 
+class ResourceScrolledImage(node.Node):
+    """
+    An image that scrolls across the screen endlessly
+    """
+
+    def __init__(self, root, filename):
+        super(ResourceScrolledImage, self).__init__()
+
+        self.image_0 = ResourceImage(root, filename)
+        self.image_1 = ResourceImage(root, filename)
+
+    def render(self, parent):
+        self.image_0.render(parent)
+        self.image_1.render(parent)
+
 class ResourceLabelError(node.NodeError):
     """
     A resource label specific runtime error
@@ -148,6 +163,30 @@ class ResourceLabel(node.Node):
         self._parent = parent
         self.label = Tkinter.Label(parent, text=self._text, font=self._font,
             background='black', foreground='white')
+
+        # move the label object into position; the position can be set before
+        # or after the label has been parented.
+        self.move()
+
+    @node.Node.x.setter
+    def x(self, x):
+        if x is self._x:
+            return
+
+        self._x = x
+
+        if self._parent:
+            self.move()
+
+    @node.Node.y.setter
+    def y(self, y):
+        if y is self._y:
+            return
+
+        self._y = y
+
+        if self._parent:
+            self.move()
 
     @property
     def font(self):
@@ -239,9 +278,9 @@ class ResourceLabel(node.Node):
         pass
 
     def update(self):
-        if not self._label:
-            return
+        pass
 
+    def move(self):
         self.label.place(x=self._x, y=self._y, anchor=Tkinter.CENTER)
 
     def render(self, parent):
@@ -249,6 +288,15 @@ class ResourceLabel(node.Node):
             raise ResourceLabelError('Cannot attach image to invalid parent!')
 
         self.parent = parent
+
+    def derender(self):
+        if not self._parent:
+            raise ResourceLabelError('Cannot detach image from invalid parent!')
+
+        self._label.pack_forget()
+        self._label.destroy()
+
+        self._parent = None
 
     def destroy(self):
         self.hover_sound.stop()
@@ -260,6 +308,7 @@ class ResourceLabel(node.Node):
         if self._label:
             self.unbindall()
 
+        self._label.destroy()
         self.font_size = 0
         self.font_family = 0
         self.bind_events = False

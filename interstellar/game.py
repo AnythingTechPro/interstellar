@@ -217,8 +217,16 @@ class Scene(object):
     def __pause(self, event):
         if self.active:
             self.active = False
+            self.pause()
         else:
             self.active = True
+            self.unpause()
+
+    def pause(self):
+        pass
+
+    def unpause(self):
+        pass
 
     def destroy(self):
         if not self.active:
@@ -250,17 +258,17 @@ class MainMenu(Scene):
         self.logo.position = (self.master.width / 2, self.master.height / 4)
         self.logo.render(self.canvas)
 
-        self.play_button = resource.ResourceLabel(40, 'Pixeled')
+        self.play_button = resource.ResourceLabel(40)
         self.play_button.position = (self.master.width / 2, self.master.height / 2)
         self.play_button.text = 'Play'
         self.play_button.render(self.canvas)
 
-        self.options_button = resource.ResourceLabel(40, 'Pixeled')
+        self.options_button = resource.ResourceLabel(40)
         self.options_button.position = (self.master.width / 2, (self.master.height / 3) * 2)
         self.options_button.text = 'Options'
         self.options_button.render(self.canvas)
 
-        self.quit_button = resource.ResourceLabel(40, 'Pixeled')
+        self.quit_button = resource.ResourceLabel(40)
         self.quit_button.position = (self.master.width / 2, (self.master.height / 3) * 2.5)
         self.quit_button.text = 'Quit'
         self.quit_button.render(self.canvas)
@@ -283,13 +291,6 @@ class MainMenu(Scene):
     def __options(self):
         self.root.current_scene = OptionsMenu
 
-    def update(self):
-        self.play_button.update()
-        self.quit_button.update()
-        self.options_button.update()
-
-        super(MainMenu, self).update()
-
     def destroy(self):
         self.music_array.deselect()
         self.music_array.destroy()
@@ -307,22 +308,22 @@ class OptionsMenu(Scene):
 
         self.music = self.root.audio_manager.load('assets/audio/music/options_menu.wav', True)
 
-        self.options_label = resource.ResourceLabel(40, 'Pixeled', False)
+        self.options_label = resource.ResourceLabel(40, bind_events=False)
         self.options_label.position = (self.master.width / 2, self.master.height / 10)
         self.options_label.text = 'Game Options:'
         self.options_label.render(self.canvas)
 
-        self.music_label = resource.ResourceLabel(40, 'Pixeled', False)
+        self.music_label = resource.ResourceLabel(40, bind_events=False)
         self.music_label.position = (self.master.width / 2.5, self.master.height / 3)
         self.music_label.text = 'Music:'
         self.music_label.render(self.canvas)
 
-        self.music_button = resource.ResourceLabel(40, 'Pixeled')
+        self.music_button = resource.ResourceLabel(40)
         self.music_button.position = (self.master.width / 1.5, self.master.height / 3)
         self.music_button.text = self.music_active
         self.music_button.render(self.canvas)
 
-        self.back_button = resource.ResourceLabel(40, 'Pixeled')
+        self.back_button = resource.ResourceLabel(40)
         self.back_button.position = (self.master.width / 10.7, (self.master.height / 4) * 3.7)
         self.back_button.text = 'Back'
         self.back_button.render(self.canvas)
@@ -344,14 +345,6 @@ class OptionsMenu(Scene):
     def __toggle_audio(self):
         self.root.audio_manager.toggle()
         self.music_button.text = self.music_active
-
-    def update(self):
-        self.options_label.update()
-        self.music_label.update()
-        self.music_button.update()
-        self.back_button.update()
-
-        super(OptionsMenu, self).update()
 
     def destroy(self):
         self.root.audio_manager.unload(self.music)
@@ -378,6 +371,10 @@ class GameLevel(Scene):
         self.background = resource.ResourceImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
         self.background.render(self.canvas)
+
+        self.paused_label = resource.ResourceLabel(40, bind_events=False)
+        self.paused_label.position = (self.master.width / 2, self.master.height / 2)
+        self.paused_label.text = 'Paused'
 
         self.ship = sprite.Ship(self, sprite.ShipController)
 
@@ -409,6 +406,12 @@ class GameLevel(Scene):
         asteroid.destroy()
         self.asteroids.remove(asteroid)
 
+    def pause(self):
+        self.paused_label.render(self.canvas)
+
+    def unpause(self):
+        self.paused_label.derender()
+
     def destroy(self):
         self.music_array.deselect()
         self.music_array.destroy()
@@ -418,5 +421,6 @@ class GameLevel(Scene):
 
         self.background.destroy()
         self.ship.destroy()
+        self.paused_label.destroy()
 
         super(GameLevel, self).destroy()
