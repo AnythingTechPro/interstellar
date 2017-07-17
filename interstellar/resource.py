@@ -283,7 +283,10 @@ class ResourceLabel(node.Node):
 
     def exit(self, event):
         self.is_hovering = False
-        self.hover_sound.stop()
+
+        # instead of stopping the audio entirely, fade out to help reduce
+        # that annoying audio tearing...
+        self.hover_sound.fadeout(1)
         self.label['foreground'] = 'white'
 
         if self.exit_handler:
@@ -381,7 +384,9 @@ class ResourceAudioArray(object):
         if not use_pygame:
             self.root.audio_manager.unload(self.current, *args, **kwargs)
         else:
-            self.current.stop()
+            # instead of stopping the audio entirely, fade out to help reduce
+            # that annoying audio tearing...
+            self.current.fadeout(1)
 
         self.current = None
 
