@@ -127,10 +127,6 @@ class ResourceScrolledImage(node.Node):
         self.image_0.y = y
         self.image_1.y = self.image_0.y - self.image_1.height
 
-    @node.Node.position.setter
-    def position(self, position):
-        self.x, self.y = position
-
     def update(self):
         if self.image_0.y - self.image_0.height / 2 >= self._parent.display.height:
             self.image_0.y = self.image_1.y - self.image_0.height

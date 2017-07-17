@@ -192,7 +192,7 @@ class Scene(object):
         self.bind('<Configure>', self.reconfigure)
 
         if self.can_pause:
-            self.bind('<Return>', self.__pause)
+            self.bind('<KeyRelease-Return>', self.__pause)
 
         self.active = True
 
@@ -235,7 +235,7 @@ class Scene(object):
         self.unbind('<Configure>')
 
         if self.can_pause:
-            self.unbind('<Return>')
+            self.unbind('<KeyRelease-Return>')
 
         self.canvas.destroy()
         self.canvas = None
@@ -370,7 +370,7 @@ class GameLevel(Scene):
 
         self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
-        self.background.speed = 1.0
+        self.background.speed = 1
         self.background.render(self.canvas)
 
         self.paused_label = resource.ResourceLabel(40, bind_events=False)

@@ -42,7 +42,7 @@ class Node(object):
 
     @position.setter
     def position(self, position):
-        self._x, self._y = position
+        self.x, self.y = position
 
     @property
     def width(self):
