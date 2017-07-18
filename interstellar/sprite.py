@@ -212,8 +212,6 @@ class ShipController(SpriteController):
             self.destroy_projectile(projectile)
 
     def destroy(self):
-        super(ShipController, self).destroy()
-
         self.music_array.destroy()
         self.fire_sound = None
 
@@ -229,6 +227,7 @@ class ShipController(SpriteController):
         self._parent.unbind('<KeyRelease-space>')
 
         self.destroy_projectiles()
+        super(ShipController, self).destroy()
 
 class Ship(Sprite):
 

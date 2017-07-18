@@ -5,7 +5,7 @@ import pygame
 import Tkinter
 import tkFont
 from PIL import Image, ImageTk
-from interstellar import node
+from interstellar import node, util
 
 class ResourceImageError(node.NodeError):
     """
@@ -162,6 +162,8 @@ class ResourceLabel(node.Node):
 
     def __init__(self, font_size, font_family='Pixeled', bind_events=True):
         super(ResourceLabel, self).__init__()
+
+        util.load_font('assets/font/Pixeled.ttf')
 
         self.font_size = font_size
         self.font_family = font_family

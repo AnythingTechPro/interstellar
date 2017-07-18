@@ -112,7 +112,7 @@ class Game(object):
         self.display.size = (width, height)
         self.display.caption = caption
         self.display.position = self.display.root.winfo_screenwidth() / 2 - self.display.width / 2, \
-            self.display.root.winfo_screenheight() / 2 - self.display.height
+            self.display.root.winfo_screenheight() / 2 - self.display.height / 2
 
         self.audio_manager = audio.AudioManager()
         self.shutdown = False
@@ -146,9 +146,6 @@ class Game(object):
         self.display.destroy()
 
     def execute(self):
-        for event in pygame.event.get():
-            pass
-
         self.update()
         self.display.update()
 
@@ -424,8 +421,6 @@ class GameLevel(Scene):
     def destroy(self):
         self.music_array.deselect()
         self.music_array.destroy()
-        self.explosion_sound_array.deselect(use_pygame=True)
-        self.explosion_sound_array.destroy()
 
         self.ending_music.stop()
         self.root.audio_manager.unload(self.ending_music)
