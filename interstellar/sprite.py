@@ -1,6 +1,6 @@
 import random
 import pygame
-from interstellar import node, resource
+from interstellar import node, resource, controller
 
 class SpriteError(node.NodeError):
     """
@@ -61,13 +61,19 @@ class SpriteController(node.Node):
         if not self._parent:
             return None
 
-        self._parent.bind(*args, **kwargs)
+        return self._parent.bind(*args, **kwargs)
 
     def unbind(self, *args, **kwargs):
         if not self._parent:
             return None
 
-        self._parent.unbind(*args, **kwargs)
+        return self._parent.unbind(*args, **kwargs)
+
+    def send(self, *args, **kwargs):
+        if not self._parent:
+            return None
+
+        return self._parent.send(*args, **kwargs)
 
     def destroy(self):
         super(SpriteController, self).destroy()
@@ -101,6 +107,8 @@ class ShipController(SpriteController):
         self.projectiles = []
         self.maximum_projectiles = 15
 
+        self.controller = controller.GameController(self)
+
     def setup(self):
         super(ShipController, self).setup()
 
@@ -114,6 +122,8 @@ class ShipController(SpriteController):
         self.bind('<KeyRelease-Left>', lambda event: self.move_left(event, True))
         self.bind('<space>', self.fire)
         self.bind('<KeyRelease-space>', lambda event: self.fire(event, True))
+
+        self.controller.setup()
 
     def move_forward(self, event, release=False):
         if not release:
@@ -144,6 +154,11 @@ class ShipController(SpriteController):
             self.firing = True
         else:
             self.firing = False
+
+    def update(self):
+        self.controller.update()
+
+        super(ShipController, self).update()
 
     def move(self):
         if self.moving_forward and not self.image.y - self.image.height / 2 <= 0:
@@ -226,6 +241,7 @@ class ShipController(SpriteController):
         self._parent.unbind('<space>')
         self._parent.unbind('<KeyRelease-space>')
 
+        self.controller.destroy()
         self.destroy_projectiles()
         super(ShipController, self).destroy()
 

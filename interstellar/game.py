@@ -211,6 +211,12 @@ class Scene(object):
 
         return self.canvas.unbind(*args, **kwargs)
 
+    def send(self, *args, **kwargs):
+        if not self.canvas:
+            return None
+
+        return self.canvas.event_generate(*args, **kwargs)
+
     def __pause(self, event):
         if self.active:
             self.active = False
