@@ -186,10 +186,10 @@ class Scene(object):
         if self.active:
             raise SceneError('Scene has already been setup!')
 
-        self.bind('<Configure>', self.reconfigure)
+        self.bind('Configure', self.reconfigure)
 
         if self.can_pause:
-            self.bind('<KeyRelease-Return>', self.__pause)
+            self.bind('KeyRelease-Return', self.__pause)
 
         self.active = True
 
@@ -199,23 +199,23 @@ class Scene(object):
     def reconfigure(self, event):
         self.canvas['width'], self.canvas['height'] = self.master.width, self.master.height
 
-    def bind(self, *args, **kwargs):
+    def bind(self, event, *args, **kwargs):
         if not self.canvas:
             return None
 
-        return self.canvas.bind(*args, **kwargs)
+        return self.canvas.bind('<%s>' % event, *args, **kwargs)
 
-    def unbind(self, *args, **kwargs):
+    def unbind(self, event, *args, **kwargs):
         if not self.canvas:
             return None
 
-        return self.canvas.unbind(*args, **kwargs)
+        return self.canvas.unbind('<%s>' % event, *args, **kwargs)
 
-    def send(self, *args, **kwargs):
+    def send(self, event, *args, **kwargs):
         if not self.canvas:
             return None
 
-        return self.canvas.event_generate(*args, **kwargs)
+        return self.canvas.event_generate('<%s>' % event, *args, **kwargs)
 
     def __pause(self, event):
         if self.active:
@@ -235,10 +235,10 @@ class Scene(object):
         if not self.active:
             raise SceneError('Scene has not been setup!')
 
-        self.unbind('<Configure>')
+        self.unbind('Configure')
 
         if self.can_pause:
-            self.unbind('<KeyRelease-Return>')
+            self.unbind('KeyRelease-Return')
 
         self.canvas.destroy()
         self.canvas = None

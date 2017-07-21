@@ -254,27 +254,33 @@ class ResourceLabel(node.Node):
         if self.bind_events:
             self.bindall()
 
-    def bind(self, *args, **kwargs):
+    def bind(self, event, *args, **kwargs):
         if not self._label:
             return None
 
-        self._label.bind(*args, **kwargs)
+        self._label.bind('<%s>' % event, *args, **kwargs)
 
-    def unbind(self, *args, **kwargs):
+    def unbind(self, event, *args, **kwargs):
         if not self._label:
             return None
 
-        self._label.unbind(*args, **kwargs)
+        self._label.unbind('<%s>' % event, *args, **kwargs)
+
+    def send(self, event, *args, **kwargs):
+        if not self._label:
+            return None
+
+        self._label.event_generate('<%s>' % event, *args, **kwargs)
 
     def bindall(self):
-        self.bind('<Enter>', self.enter)
-        self.bind('<Leave>', self.exit)
-        self.bind('<Button-1>', self.click)
+        self.bind('Enter', self.enter)
+        self.bind('Leave', self.exit)
+        self.bind('Button-1', self.click)
 
     def unbindall(self):
-        self.unbind('<Enter>')
-        self.unbind('<Leave>')
-        self.unbind('<Button-1>')
+        self.unbind('Enter')
+        self.unbind('Leave')
+        self.unbind('Button-1')
 
     def enter(self, event):
         self.is_hovering = True
