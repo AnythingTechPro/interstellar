@@ -70,7 +70,8 @@ class Controller(object):
         pass
 
     def destroy(self):
-        pass
+        self.joysticks = {}
+        self.joystick = None
 
 class GameController(Controller):
     """
