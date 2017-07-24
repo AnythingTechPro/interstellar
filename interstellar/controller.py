@@ -27,18 +27,21 @@ class Controller(object):
 
     def __init__(self, root):
         self.root = root
+        self.joysticks = {}
+        self.joystick = None
 
+    def load_joysticks(self):
         self.joysticks = {joystick_id: pygame.joystick.Joystick(joystick_id) for joystick_id in xrange(\
             pygame.joystick.get_count())}
 
-        self.joystick = None
+        for joystick in self.joysticks.values():
+            joystick.init()
 
     def get_joystick(self, joystick_id):
         return self.joysticks.get(joystick_id)
 
     def setup(self):
-        for joystick in self.joysticks.values():
-            joystick.init()
+        self.load_joysticks()
 
     def update(self):
         for event in pygame.event.get():
