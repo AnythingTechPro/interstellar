@@ -396,7 +396,7 @@ class GameLevel(Scene):
         self.explosion = resource.ResourceFrameImage(self.canvas,
             ['assets/explosion/%d.png' % index for index in xrange(15)], self.explosion_callback)
 
-        self.explosion_sound = pygame.mixer.Sound('assets/audio/music/explosion_0.wav')
+        self.explosion_sound = pygame.mixer.Sound('assets/audio/sfx/explosion_0.wav')
 
         self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)

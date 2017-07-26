@@ -290,5 +290,5 @@ class Asteroid(Sprite):
         super(Asteroid, self).__init__(parent, image, controller)
 
     def die(self):
-        #self._parent.explosion_sound.play()
+        self._parent.explosion_sound.play()
         self._parent.remove_asteroid(self, True)
