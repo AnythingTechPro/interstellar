@@ -42,8 +42,10 @@ class SpriteController(node.Node):
     A controller, movement management for a specific sprite object
     """
 
-    def __init__(self, sprite):
+    def __init__(self, sprite, bind_events=True):
         super(SpriteController, self).__init__()
+
+        self.bind_events = bind_events
 
         self.sprite = sprite
         self.speed = 0
@@ -58,19 +60,19 @@ class SpriteController(node.Node):
         pass
 
     def bind(self, *args, **kwargs):
-        if not self._parent:
+        if not self._parent or not self.bind_events:
             return None
 
         return self._parent.bind(*args, **kwargs)
 
     def unbind(self, *args, **kwargs):
-        if not self._parent:
+        if not self._parent or not self.bind_events:
             return None
 
         return self._parent.unbind(*args, **kwargs)
 
     def send(self, *args, **kwargs):
-        if not self._parent:
+        if not self._parent or not self.bind_events:
             return None
 
         return self._parent.send(*args, **kwargs)

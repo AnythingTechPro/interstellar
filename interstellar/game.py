@@ -16,6 +16,7 @@ class GameDisplay(object):
         self._x = 0
         self._y = 0
         self._caption = ''
+        self._resizable = True
 
     @property
     def size(self):
@@ -96,6 +97,18 @@ class GameDisplay(object):
         self._caption = caption
         self.root.title(caption)
 
+    @property
+    def resizable(self):
+        return self._resizable
+
+    @resizable.setter
+    def resizable(self, resizable):
+        if resizable is self._resizable:
+            return
+
+        self._resizable = resizable
+        self.root.resizable(resizable, resizable)
+
     def setup(self):
         self.root.configure(background='black')
 
@@ -113,6 +126,10 @@ class Game(object):
         self.display.caption = caption
         self.display.position = self.display.root.winfo_screenwidth() / 2 - self.display.width / 2, \
             self.display.root.winfo_screenheight() / 2 - self.display.height / 2
+
+        # TODO: disable window resizing until dynamic window change event,
+        # is implemented so all objects will resize appropriately.
+        self.display.resizable = False
 
         self.audio_manager = audio.AudioManager()
         self.shutdown = False
