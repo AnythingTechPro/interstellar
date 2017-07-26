@@ -36,6 +36,10 @@ class ResourceImage(node.Node):
             raise ResourceImageError('Already attached to parent!')
 
         self._parent = parent
+
+        if not self.image and self.filepath:
+            self.image = ImageTk.PhotoImage(Image.open(self.filepath))
+
         self._id = parent.create_image(self._x, self._y, image=self.image, anchor=Tkinter.CENTER)
 
     @node.Node.x.setter
@@ -97,6 +101,14 @@ class ResourceImage(node.Node):
 
         self.parent = parent
 
+    def unrender(self):
+        if not self._parent:
+            raise ResourceImageError('Cannot detach image from invalid parent')
+
+        del self.image
+        self.image = None
+        self._parent = None
+
     def destroy(self):
         super(ResourceImage, self).destroy()
 
@@ -114,6 +126,7 @@ class ResourceScrolledImage(node.Node):
     def __init__(self, root, filename):
         super(ResourceScrolledImage, self).__init__(root)
 
+        self.root = root
         self.image_0 = ResourceImage(root, filename)
         self.image_1 = ResourceImage(root, filename)
         self.speed = 0
@@ -143,9 +156,81 @@ class ResourceScrolledImage(node.Node):
         self.image_1.render(parent)
 
     def destroy(self):
+        self.root = None
         self.image_0.destroy()
         self.image_1.destroy()
         self.speed = 0
+
+class ResourceFrameImage(node.Node):
+    """
+    A class for creating GIF like images with multiple playback frames
+    """
+
+    def __init__(self, root, frames, callback=None):
+        super(ResourceFrameImage, self).__init__()
+
+        if not isinstance(frames, list):
+            raise ResourceImageError('Frame image objects only support list arrays!')
+
+        self.root = root
+        self.frames = frames
+        self.callback = callback
+        self.images = {}
+        self.can_play = False
+
+        for index in xrange(len(self.frames)):
+            self.images[index] = ResourceImage(self.root, self.frames[index])
+
+        self.current_index = 0
+        self.current_image = None
+
+    @node.Node.x.setter
+    def x(self, x):
+        for image in self.images.values():
+            image.x = x
+
+    @node.Node.y.setter
+    def y(self, y):
+        for image in self.images.values():
+            image.y = y
+
+    @node.Node.position.setter
+    def position(self, position):
+        for image in self.images.values():
+            image.position = position
+
+    @property
+    def current_frame(self):
+        return self.images[self.current_index]
+
+    def update(self):
+        if not self.can_play:
+            return
+
+        if self.current_index >= len(self.images):
+            self.current_index = 0
+
+            if callable(self.callback):
+                self.callback()
+
+        if self.current_image and self.current_image.parent:
+            self.current_image.unrender()
+
+        self.current_image = self.images[self.current_index]
+        self.current_image.render(self.root)
+
+        self.current_index += 1
+
+    def destroy(self):
+        self.root = None
+        self.frames = []
+        self.images = {}
+        self.callback = None
+        self.can_explode = False
+        self.current_index = 0
+        self.current_image = None
+
+        super(ResourceFrameImage, self).destroy()
 
 class ResourceLabelError(node.NodeError):
     """

@@ -387,6 +387,10 @@ class GameLevel(Scene):
 
         self.music = self.music_array.select(True)
         self.ending_music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
+
+        self.explosion = resource.ResourceFrameImage(self.canvas,
+            ['assets/explosion/%d.png' % index for index in xrange(15)], self.explosion_callback)
+
         self.explosion_sound = pygame.mixer.Sound('assets/audio/music/explosion_0.wav')
 
         self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
@@ -405,7 +409,7 @@ class GameLevel(Scene):
         self.ship = sprite.Ship(self, sprite.ShipController)
 
         self.asteroids = []
-        self.maximum_asteroids = 25
+        self.maximum_asteroids = 20
 
     def setup(self):
         super(GameLevel, self).setup()
@@ -417,6 +421,7 @@ class GameLevel(Scene):
     def update(self):
         self.time_label.update()
         self.ship.update()
+        self.explosion.update()
 
         for asteroid in self.asteroids:
             asteroid.update()
@@ -431,7 +436,13 @@ class GameLevel(Scene):
         asteroid = sprite.Asteroid(self, sprite.AsteroidController)
         self.asteroids.append(asteroid)
 
+    def explosion_callback(self):
+        self.explosion.can_play = False
+
     def remove_asteroid(self, asteroid):
+        self.explosion.position = (asteroid.image.x, asteroid.image.y)
+        self.explosion.can_play = True
+
         asteroid.destroy()
         self.asteroids.remove(asteroid)
 
@@ -450,6 +461,7 @@ class GameLevel(Scene):
 
         self.background.destroy()
         self.ship.destroy()
+        self.explosion.destroy()
         self.paused_label.destroy()
         self.time_label.destroy()
 
