@@ -248,7 +248,7 @@ class ResourceLabel(node.Node):
     A tkinter label object with special properties...
     """
 
-    __slots__ = ('font_size', 'font_family', 'bind_events', '_font', '_text', '_width', '_height', '_label',
+    __slots__ = ('font_size', 'font_family', 'bind_events', '_font', '_text', '_width', '_height', '_label', '_color',
         'enter_handler', 'exit_handler', 'clicked_handler', 'is_hovering', 'is_clicked', 'hover_sound', 'clicked_sound')
 
     def __init__(self, font_size, font_family='Pixeled', bind_events=True):
@@ -264,6 +264,7 @@ class ResourceLabel(node.Node):
         self._width = font_size
         self._height = font_size / 2
         self._label = None
+        self._color = 'white'
 
         self.enter_handler = None
         self.exit_handler = None
@@ -282,7 +283,7 @@ class ResourceLabel(node.Node):
 
         self._parent = parent
         self.label = Tkinter.Label(parent, text=self._text, font=self._font,
-            background='black', foreground='white')
+            background='black', foreground=self._color)
 
         # move the label object into position; the position can be set before
         # or after the label has been parented.
@@ -344,6 +345,20 @@ class ResourceLabel(node.Node):
 
         if self.bind_events:
             self.bindall()
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        if color is self._color:
+            return
+
+        self._color = color
+
+        if self.label:
+            self.label['foreground'] = color
 
     def bind(self, event, *args, **kwargs):
         if not self._label:

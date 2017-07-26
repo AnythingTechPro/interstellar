@@ -279,8 +279,10 @@ class MainMenu(Scene):
 
         self.music = self.music_array.select(True)
 
-        self.logo = resource.ResourceImage(self.root, 'assets/menu/logo.png')
+        self.logo = resource.ResourceLabel(60, bind_events=False)
         self.logo.position = (self.master.width / 2, self.master.height / 4)
+        self.logo.text = 'Interstellar'
+        self.logo.color = 'yellow'
         self.logo.render(self.canvas)
 
         self.play_button = resource.ResourceLabel(40)
@@ -297,6 +299,12 @@ class MainMenu(Scene):
         self.quit_button.position = (self.master.width / 2, (self.master.height / 3) * 2.5)
         self.quit_button.text = 'Quit'
         self.quit_button.render(self.canvas)
+
+        self.testing_notice = resource.ResourceLabel(10, bind_events=False)
+        self.testing_notice.position = (self.master.width / 8.4, (self.master.height / 4) * 3.9)
+        self.testing_notice.text = 'NOTICE: Experimental build!'
+        self.testing_notice.color = 'red'
+        self.testing_notice.render(self.canvas)
 
     def setup(self):
         super(MainMenu, self).setup()
@@ -323,6 +331,7 @@ class MainMenu(Scene):
         self.play_button.destroy()
         self.quit_button.destroy()
         self.options_button.destroy()
+        self.testing_notice.destroy()
 
         super(MainMenu, self).destroy()
 
