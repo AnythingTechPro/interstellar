@@ -28,6 +28,9 @@ class Sprite(node.Node):
     def update(self):
         self.controller.update()
 
+    def explicit_update(self):
+        self.controller.explicit_update()
+
     def destroy(self):
         super(Sprite, self).destroy()
 
@@ -55,6 +58,9 @@ class SpriteController(node.Node):
 
     def update(self):
         self.move()
+
+    def explicit_update(self):
+        pass
 
     def move(self):
         pass
@@ -157,10 +163,8 @@ class ShipController(SpriteController):
         else:
             self.firing = False
 
-    def update(self):
+    def explicit_update(self):
         self.controller.update()
-
-        super(ShipController, self).update()
 
     def move(self):
         if self.moving_forward and not self.image.y - self.image.height / 2 <= 0:

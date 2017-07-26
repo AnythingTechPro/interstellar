@@ -14,6 +14,7 @@ JOYBUTTON_LB = 0x04
 JOYBUTTON_RB = 0x05
 JOYBUTTON_LT = 0x06
 JOYBUTTON_RT = 0x07
+JOYBUTTON_START = 0x09
 
 class ControllerError(RuntimeError):
     """
@@ -81,10 +82,14 @@ class GameController(Controller):
     def button_down(self, button):
         if button == JOYBUTTON_LT or button == JOYBUTTON_RT:
             self.root.send('space')
+        elif button == JOYBUTTON_START:
+            self.root.send('Return')
 
     def button_up(self, button):
         if button == JOYBUTTON_LT or button == JOYBUTTON_RT:
             self.root.send('KeyRelease-space')
+        elif button == JOYBUTTON_START:
+            self.root.send('KeyRelease-Return')
 
     def on_axis_motion(self):
         x, y = round(self.joystick.get_axis(0)), round(self.joystick.get_axis(1))

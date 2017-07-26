@@ -157,6 +157,8 @@ class Game(object):
         if self.current_scene.active:
             self.current_scene.update()
 
+        self.current_scene.explicit_update()
+
     def destroy(self):
         self.current_scene.destroy()
         self.audio_manager.destroy()
@@ -212,6 +214,9 @@ class Scene(object):
 
     def update(self):
         self.canvas.update()
+
+    def explicit_update(self):
+        pass
 
     def reconfigure(self, event):
         self.canvas['width'], self.canvas['height'] = self.master.width, self.master.height
@@ -431,6 +436,9 @@ class GameLevel(Scene):
 
         self.background.update()
         super(GameLevel, self).update()
+
+    def explicit_update(self):
+        self.ship.explicit_update()
 
     def add_asteroid(self):
         asteroid = sprite.Asteroid(self, sprite.AsteroidController)
