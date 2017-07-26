@@ -287,4 +287,4 @@ class Asteroid(Sprite):
 
     def die(self):
         #self._parent.explosion_sound.play()
-        self._parent.remove_asteroid(self)
+        self._parent.remove_asteroid(self, True)

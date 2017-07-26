@@ -439,9 +439,10 @@ class GameLevel(Scene):
     def explosion_callback(self):
         self.explosion.can_play = False
 
-    def remove_asteroid(self, asteroid):
-        self.explosion.position = (asteroid.image.x, asteroid.image.y)
-        self.explosion.can_play = True
+    def remove_asteroid(self, asteroid, use_effects=False):
+        if use_effects:
+            self.explosion.position = (asteroid.image.x, asteroid.image.y)
+            self.explosion.can_play = True
 
         asteroid.destroy()
         self.asteroids.remove(asteroid)

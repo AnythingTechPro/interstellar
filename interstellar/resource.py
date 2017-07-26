@@ -205,7 +205,8 @@ class ResourceFrameImage(node.Node):
 
     def update(self):
         if not self.can_play:
-            return
+            # clear all frames incase one is still rendered.
+            return self.clear()
 
         if self.current_index >= len(self.images):
             self.current_index = 0
@@ -220,6 +221,11 @@ class ResourceFrameImage(node.Node):
         self.current_image.render(self.root)
 
         self.current_index += 1
+
+    def clear(self):
+        for image in self.images.values():
+            if image and image.parent:
+                image.unrender()
 
     def destroy(self):
         self.root = None
