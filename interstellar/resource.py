@@ -212,7 +212,7 @@ class ResourceFrameImage(node.Node):
             self.current_index = 0
 
             if callable(self.callback):
-                self.callback()
+                return self.callback()
 
         if self.current_image and self.current_image.parent:
             self.current_image.unrender()
