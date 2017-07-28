@@ -257,6 +257,7 @@ class Scene(object):
         if not self.active:
             raise SceneError('Scene has not been setup!')
 
+        self.active = False
         self.unbind('Configure')
 
         if self.can_pause:
@@ -264,8 +265,6 @@ class Scene(object):
 
         self.canvas.destroy()
         self.canvas = None
-
-        self.active = False
 
 class MainMenu(Scene):
 
@@ -399,8 +398,7 @@ class GameLevel(Scene):
             'assets/audio/music/level_1.wav',
             'assets/audio/music/level_2.wav'])
 
-        self.music = self.music_array.select(True)
-        self.ending_music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
+        self.music = self.music_array.select()
 
         self.explosion = resource.ResourceFrameImage(self.canvas,
             ['assets/explosion/%d.png' % index for index in xrange(15)], self.explosion_callback)
@@ -433,8 +431,9 @@ class GameLevel(Scene):
         self.time_label.setup()
 
     def update(self):
+        super(GameLevel, self).update()
+
         self.time_label.update()
-        self.ship.update()
         self.explosion.update()
 
         for asteroid in self.asteroids:
@@ -444,7 +443,7 @@ class GameLevel(Scene):
             self.add_asteroid()
 
         self.background.update()
-        super(GameLevel, self).update()
+        self.ship.update()
 
     def explicit_update(self):
         self.ship.explicit_update()
@@ -470,17 +469,70 @@ class GameLevel(Scene):
     def unpause(self):
         self.paused_label.derender()
 
+    def end(self):
+        self.root.current_scene = DeathMenu
+
     def destroy(self):
         self.music_array.deselect()
         self.music_array.destroy()
-
-        self.ending_music.stop()
-        self.root.audio_manager.unload(self.ending_music)
+        self.music.stop()
 
         self.background.destroy()
         self.ship.destroy()
+
+        for asteroid in self.asteroids:
+            asteroid.destroy()
+
+        self.asteroids = []
         self.explosion.destroy()
         self.paused_label.destroy()
         self.time_label.destroy()
 
         super(GameLevel, self).destroy()
+
+class DeathMenu(Scene):
+    """
+    A scene that will take place after the player dies
+    """
+
+    def __init__(self, root, master):
+        super(DeathMenu, self).__init__(root, master)
+
+        self.music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
+
+        self.death_label = resource.ResourceLabel(40, bind_events=False)
+        self.death_label.position = (self.master.width / 2, self.master.height / 4)
+        self.death_label.text = 'You Died!'
+        self.death_label.render(self.canvas)
+
+        self.replay_button = resource.ResourceLabel(40)
+        self.replay_button.position = (self.master.width / 2, self.master.height / 2)
+        self.replay_button.text = 'Retry'
+        self.replay_button.render(self.canvas)
+
+        self.main_menu = resource.ResourceLabel(40)
+        self.main_menu.position = (self.master.width / 2, self.master.height / 1.5)
+        self.main_menu.text = 'Return To Menu'
+        self.main_menu.render(self.canvas)
+
+    def setup(self):
+        super(DeathMenu, self).setup()
+
+        self.music.play()
+
+        self.replay_button.clicked_handler = self.__goto_level
+        self.main_menu.clicked_handler = self.__goto_main_menu
+
+    def __goto_level(self):
+        self.root.current_scene = GameLevel
+
+    def __goto_main_menu(self):
+        self.root.current_scene = MainMenu
+
+    def destroy(self):
+        self.music.stop()
+        self.root.audio_manager.unload(self.music)
+
+        self.death_label.destroy()
+
+        super(DeathMenu, self).destroy()

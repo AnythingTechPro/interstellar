@@ -181,6 +181,7 @@ class ShipController(SpriteController):
             self.fire_projectile()
 
         self.update_projectiles()
+        self.check_player_collisions()
 
     def update_projectiles(self):
         for projectile in self.projectiles:
@@ -203,6 +204,12 @@ class ShipController(SpriteController):
                 return True
 
         return False
+
+    def check_player_collisions(self):
+        for asteroid in self._parent.asteroids:
+
+            if self.sprite.image.collide_point(asteroid.image):
+                return self.sprite.die()
 
     def fire_projectile(self):
         if self.fire_sound:
@@ -259,6 +266,10 @@ class Ship(Sprite):
         image.render(parent.canvas)
 
         super(Ship, self).__init__(parent, image, controller)
+
+    def die(self):
+        self._parent.explosion_sound.play()
+        self._parent.end()
 
 class AsteroidController(SpriteController):
 
