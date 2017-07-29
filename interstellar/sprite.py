@@ -268,7 +268,7 @@ class Ship(Sprite):
         super(Ship, self).__init__(parent, image, controller)
 
     def die(self):
-        self._parent.explosion_sound.play()
+        self._parent.explode(self.image.x, self.image.y)
         self._parent.end()
 
 class AsteroidController(SpriteController):
@@ -301,5 +301,5 @@ class Asteroid(Sprite):
         super(Asteroid, self).__init__(parent, image, controller)
 
     def die(self):
-        self._parent.explosion_sound.play()
+        self._parent.explode(self.image.x, self.image.y)
         self._parent.remove_asteroid(self, True)

@@ -5,7 +5,7 @@ import thread
 import time
 import _tkinter
 import Tkinter
-from interstellar import audio, util, resource, sprite
+from interstellar import audio, util, resource, sprite, task
 
 class GameDisplay(object):
 
@@ -131,6 +131,7 @@ class Game(object):
         # is implemented so all objects will resize appropriately.
         self.display.resizable = False
 
+        self.task_manager = task.TaskManager()
         self.audio_manager = audio.AudioManager()
         self.shutdown = False
         self._last_scene = None
@@ -169,6 +170,8 @@ class Game(object):
         self.display.update()
 
     def mainloop(self):
+        self.task_manager.run()
+
         while not self.shutdown:
             try:
                 self.execute()
@@ -208,7 +211,7 @@ class Scene(object):
         self.bind('Configure', self.reconfigure)
 
         if self.can_pause:
-            self.bind('KeyRelease-Return', self.__pause)
+            self.bind('KeyRelease-Return', self.toggle_pause)
 
         self.active = True
 
@@ -239,10 +242,10 @@ class Scene(object):
 
         return self.canvas.event_generate('<%s>' % event, *args, **kwargs)
 
-    def __pause(self, event):
+    def toggle_pause(self, event, no_label=False):
         if self.active:
             self.active = False
-            self.pause()
+            self.pause(no_label)
         else:
             self.active = True
             self.unpause()
@@ -456,14 +459,18 @@ class GameLevel(Scene):
         self.explosion.can_play = False
 
     def remove_asteroid(self, asteroid, use_effects=False):
-        if use_effects:
-            self.explosion.position = (asteroid.image.x, asteroid.image.y)
-            self.explosion.can_play = True
-
         asteroid.destroy()
         self.asteroids.remove(asteroid)
 
-    def pause(self):
+    def explode(self, x, y):
+        self.explosion.can_play = True
+        self.explosion.position = (x, y)
+        self.explosion_sound.play()
+
+    def pause(self, no_label):
+        if no_label:
+            return
+
         self.paused_label.render(self.canvas)
 
     def unpause(self):
