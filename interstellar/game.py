@@ -242,10 +242,10 @@ class Scene(object):
 
         return self.canvas.event_generate('<%s>' % event, *args, **kwargs)
 
-    def toggle_pause(self, event, no_label=False):
+    def toggle_pause(self, event):
         if self.active:
             self.active = False
-            self.pause(no_label)
+            self.pause()
         else:
             self.active = True
             self.unpause()
@@ -467,10 +467,7 @@ class GameLevel(Scene):
         self.explosion.position = (x, y)
         self.explosion_sound.play()
 
-    def pause(self, no_label):
-        if no_label:
-            return
-
+    def pause(self):
         self.paused_label.render(self.canvas)
 
     def unpause(self):
