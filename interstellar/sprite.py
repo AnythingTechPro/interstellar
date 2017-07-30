@@ -96,7 +96,7 @@ class SpriteController(node.Node):
         pass
 
     def move(self):
-        if hasattr(self.sprite._attachment, 'image') and self.sprite._attachment and self.image:
+        if self.sprite._attachment and hasattr(self.sprite._attachment, 'image') and self.sprite._attachment.image and self.image:
             self.sprite._attachment.image.position = (self.image.x, self.image.y)
 
     def bind(self, *args, **kwargs):

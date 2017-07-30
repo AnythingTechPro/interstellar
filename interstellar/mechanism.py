@@ -16,8 +16,10 @@ class Mechanism(node.Node):
     def __init__(self, parent):
         super(Mechanism, self).__init__(parent)
 
+        self.delay = 0
+
     def setup(self):
-        pass
+        game.task_manager.add_delayed(self.delay, lambda task: self.destroy())
 
     def update(self):
         pass
@@ -26,7 +28,8 @@ class Mechanism(node.Node):
         pass
 
     def destroy(self):
-        pass
+        self.delay = 0
+        self._parent._attachment = None
 
 class ShieldMechanism(Mechanism):
     NAME = 'Shield'
@@ -42,23 +45,21 @@ class ShieldMechanism(Mechanism):
 
     def setup(self):
         self._parent.can_damage = False
-        game.task_manager.add_delayed(self.delay, self.__destroy)
+
+        super(ShieldMechanism, self).setup()
 
     def move(self, x, y):
         self.image.position = (x, y)
 
-    def __destroy(self, task):
-        self._parent._attachment = None
-        self.destroy()
-
-        return task.done
-
     def destroy(self):
-        self.delay = 0
         self._parent.can_damage = True
 
-        self.image.destroy()
+        if self.image:
+            self.image.destroy()
+
         self.image = None
+
+        super(ShieldMechanism, self).destroy()
 
 class InstantKillMechanism(Mechanism):
     NAME = 'InstantKill'
@@ -71,14 +72,11 @@ class InstantKillMechanism(Mechanism):
 
     def setup(self):
         self._parent.damage = 100
-        game.task_manager.add_delayed(self.delay, self.__destroy)
 
-    def __destroy(self, task):
-        self._parent._attachment = None
-        self._parent.damage = self.previous_damage
-
-        return task.done
+        super(InstantKillMechanism, self).setup()
 
     def destroy(self):
-        self.delay = 0
+        self._parent.damage = self.previous_damage
         self.previous_damage = 0
+
+        super(InstantKillMechanism, self).destroy()

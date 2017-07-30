@@ -435,14 +435,11 @@ class GameLevel(Scene):
         self.ship = sprite.Ship(self, sprite.ShipController)
         self.background.speed = self.ship.controller.speed / 2
 
-        self.asteroid_choices = [
+        self.asteroid_choices = [[item, item.PROBABILITY] for item in [
             sprite.Asteroid,
             sprite.ShieldMechanismAsteroid,
             sprite.InstantKillMechanismAsteroid,
-        ]
-
-        self.asteroid_choices = [[item, item.PROBABILITY] for item in
-            self.asteroid_choices]
+        ]]
 
         self.asteroids = []
         self.maximum_asteroids = 20
