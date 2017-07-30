@@ -452,6 +452,8 @@ class GameLevel(Scene):
             sprite.Asteroid,
             sprite.ShieldMechanismAsteroid,
             sprite.InstantKillMechanismAsteroid,
+            sprite.FullHealthMechanismAsteroid,
+            sprite.DoubleHealthMechanismAsteroid,
         ]]
 
         self.asteroids = []

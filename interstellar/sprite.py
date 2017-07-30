@@ -395,3 +395,13 @@ class InstantKillMechanismAsteroid(MechanismAsteroid):
     PROBABILITY = 0.1
     ICON = 'assets/icons/instant_kill_icon.png'
     ATTACHMENT = mechanism.InstantKillMechanism
+
+class FullHealthMechanismAsteroid(MechanismAsteroid):
+    PROBABILITY = 0.3
+    ICON = 'assets/icons/full_health_icon.png'
+    ATTACHMENT = mechanism.FullHealthMechanism
+
+class DoubleHealthMechanismAsteroid(MechanismAsteroid):
+    PROBABILITY = 0.5
+    ICON = 'assets/icons/double_health_icon.png'
+    ATTACHMENT = mechanism.DoubleHealthMechanism

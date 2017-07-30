@@ -80,3 +80,34 @@ class InstantKillMechanism(Mechanism):
         self.previous_damage = 0
 
         super(InstantKillMechanism, self).destroy()
+
+class FullHealthMechanism(Mechanism):
+    NAME = 'FullHealth'
+
+    def __init__(self, parent):
+        super(FullHealthMechanism, self).__init__(parent)
+
+        self.delay = 0
+
+    def setup(self):
+        self._parent.health = 100
+
+        super(FullHealthMechanism, self).setup()
+
+class DoubleHealthMechanism(Mechanism):
+    NAME = 'DoubleHealth'
+
+    def __init__(self, parent):
+        super(DoubleHealthMechanism, self).__init__(parent)
+
+        self.delay = 0
+
+    def setup(self):
+        new_health = self._parent.health * 2
+
+        if new_health > 100:
+            new_health = 100
+
+        self._parent.health = new_health
+
+        super(DoubleHealthMechanism, self).setup()
