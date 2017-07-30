@@ -1,7 +1,7 @@
 import random
 import pygame
 import time
-from interstellar import node, resource, controller
+from interstellar import node, resource, controller, mechanism
 
 class SpriteError(node.NodeError):
     """
@@ -19,13 +19,30 @@ class Sprite(node.Node):
         self._parent = parent
         self.image = image
         self.controller = controller(self)
+        self._attachment = None
 
         self.health = 0
         self.damage = 0
+        self.can_damage = True
+
+    @property
+    def attachment(self):
+        return self._attachment
+
+    @attachment.setter
+    def attachment(self, attachment):
+        if self._attachment or attachment is self._attachment:
+            return
+
+        self._attachment = attachment
+        self.attachment.setup()
 
     def hurt(self, attacker):
-        if not self.health:
-            return self.die()
+        if not self.can_damage:
+            return
+
+        if self.health <= 0:
+            return self.die(attacker)
 
         self.health -= attacker.damage
 
@@ -38,6 +55,9 @@ class Sprite(node.Node):
     def update(self):
         self.controller.update()
 
+        if self._attachment:
+            self._attachment.update()
+
     def explicit_update(self):
         self.controller.explicit_update()
 
@@ -49,6 +69,9 @@ class Sprite(node.Node):
 
         self.controller.destroy()
         self.controller = None
+
+        if self._attachment:
+            self._attachment.destroy()
 
 class SpriteController(node.Node):
     """
@@ -73,7 +96,8 @@ class SpriteController(node.Node):
         pass
 
     def move(self):
-        pass
+        if hasattr(self.sprite._attachment, 'image') and self.sprite._attachment and self.image:
+            self.sprite._attachment.image.position = (self.image.x, self.image.y)
 
     def bind(self, *args, **kwargs):
         if not self._parent or not self.bind_events:
@@ -179,6 +203,8 @@ class ShipController(SpriteController):
         self.controller.update()
 
     def move(self):
+        super(ShipController, self).move()
+
         self.current_distance += self.speed
 
         if self.moving_forward and not self.image.y - self.image.height / 2 <= 0:
@@ -285,7 +311,7 @@ class Ship(Sprite):
         self.health = 100
         self.damage = 5
 
-    def die(self):
+    def die(self, killer):
         self._parent.explode(self.image.x, self.image.y)
         self._parent.end()
 
@@ -305,22 +331,53 @@ class AsteroidController(SpriteController):
         self.image.y += self.speed
 
 class Asteroid(Sprite):
+    PROBABILITY = 100
 
-    def __init__(self, parent, controller):
-        images = [
-            'assets/asteroids/asteroid-small.png',
-            'assets/asteroids/asteroid-big.png'
-        ]
+    def __init__(self, parent, controller, image=None, is_mechanism=False):
+        if not image:
+            images = [
+                'assets/asteroids/asteroid-small.png',
+                'assets/asteroids/asteroid-big.png'
+            ]
 
-        image = resource.ResourceImage(parent.root, random.choice(images))
-        image.position = (random.randrange(0, parent.root.display.width), 0)
-        image.render(parent.canvas)
+            image = resource.ResourceImage(parent.root, random.choice(images))
+            image.position = (random.randrange(0, parent.root.display.width), 0)
+            image.render(parent.canvas)
 
         super(Asteroid, self).__init__(parent, image, controller)
 
+        self.is_mechanism = is_mechanism
         self.health = 10
         self.damage = 1
 
-    def die(self):
+    def die(self, killer):
         self._parent.explode(self.image.x, self.image.y)
         self._parent.remove_asteroid(self, True)
+
+class MechanismAsteroid(Asteroid):
+    ICON = ''
+    ATTACHMENT = None
+
+    def __init__(self, parent, controller):
+        image = resource.ResourceImage(parent.root, self.ICON)
+        image.position = (random.randrange(0, parent.root.display.width), 0)
+        image.render(parent.canvas)
+
+        super(MechanismAsteroid, self).__init__(parent, controller, image, True)
+
+        self.health = 0
+        self.damage = 0
+
+    def die(self, killer):
+        killer.attachment = self.ATTACHMENT(killer)
+        self._parent.remove_asteroid(self, False)
+
+class ShieldMechanismAsteroid(MechanismAsteroid):
+    PROBABILITY = 0.5
+    ICON = 'assets/icons/shield_icon.png'
+    ATTACHMENT = mechanism.ShieldMechanism
+
+class InstantKillMechanismAsteroid(MechanismAsteroid):
+    PROBABILITY = 0.1
+    ICON = 'assets/icons/instant_kill_icon.png'
+    ATTACHMENT = mechanism.InstantKillMechanism

@@ -1,4 +1,5 @@
 import os
+import random
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 
 FR_PRIVATE = 0x10
@@ -34,3 +35,19 @@ def load_font(filepath, private=True, enumerable=False):
     flags = (FR_PRIVATE if private else 0) | (FR_NOT_ENUM if not enumerable else 0)
     numFontsAdded = AddFontResourceEx(byref(pathbuf), flags, 0)
     return bool(numFontsAdded)
+
+def weighted_choice(choices):
+    """
+    Chooses a random item from the list based on probability
+    """
+
+    total = sum(w for c, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in choices:
+        if upto + w >= r:
+            return c
+
+        upto += w
+
+    return None

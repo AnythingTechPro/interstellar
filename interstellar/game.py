@@ -5,7 +5,7 @@ import thread
 import time
 import _tkinter
 import Tkinter
-from interstellar import audio, util, resource, sprite, task
+from interstellar import audio, util, resource, sprite, task, mechanism
 
 class GameDisplay(object):
 
@@ -428,8 +428,21 @@ class GameLevel(Scene):
         self.health_label.position = (self.master.width / 15, self.master.height / 5)
         self.health_label.render(self.canvas)
 
+        self.attachment_label = resource.ResourceTimerLabel(10, bind_events=False)
+        self.attachment_label.position = (self.master.width / 10, self.master.height / 3)
+        self.attachment_label.render(self.canvas)
+
         self.ship = sprite.Ship(self, sprite.ShipController)
         self.background.speed = self.ship.controller.speed / 2
+
+        self.asteroid_choices = [
+            sprite.Asteroid,
+            sprite.ShieldMechanismAsteroid,
+            sprite.InstantKillMechanismAsteroid,
+        ]
+
+        self.asteroid_choices = [[item, item.PROBABILITY] for item in
+            self.asteroid_choices]
 
         self.asteroids = []
         self.maximum_asteroids = 20
@@ -441,6 +454,15 @@ class GameLevel(Scene):
     @property
     def health(self):
         return 'Health: %d' % self.ship.health
+
+    @property
+    def attachment(self):
+        attachment = self.ship._attachment
+
+        if not attachment:
+            return 'Attachment: None'
+
+        return 'Attachment: %s' % attachment.NAME
 
     def setup(self):
         super(GameLevel, self).setup()
@@ -457,6 +479,7 @@ class GameLevel(Scene):
 
         self.distance_label.text = self.distance
         self.health_label.text = self.health
+        self.attachment_label.text = self.attachment
 
         for asteroid in self.asteroids:
             asteroid.update()
@@ -471,7 +494,9 @@ class GameLevel(Scene):
         self.ship.explicit_update()
 
     def add_asteroid(self):
-        asteroid = sprite.Asteroid(self, sprite.AsteroidController)
+        asteroid = util.weighted_choice(self.asteroid_choices)(self, sprite.\
+            AsteroidController)
+
         self.asteroids.append(asteroid)
 
     def explosion_callback(self):
@@ -502,6 +527,7 @@ class GameLevel(Scene):
 
         self.distance_label.destroy()
         self.health_label.destroy()
+        self.attachment_label.destroy()
         self.background.destroy()
         self.ship.destroy()
 
