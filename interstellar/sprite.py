@@ -208,7 +208,7 @@ class ShipController(SpriteController):
     def check_player_collisions(self):
         for asteroid in self._parent.asteroids:
 
-            if self.sprite.image.collide_point(asteroid.image):
+            if asteroid.image.collide_point(self.sprite.image):
                 return self.sprite.die()
 
     def fire_projectile(self):
