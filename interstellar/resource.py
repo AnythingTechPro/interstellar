@@ -384,9 +384,13 @@ class ResourceLabel(node.Node):
         self.bind('Button-1', self.click)
 
     def unbindall(self):
-        self.unbind('Enter')
-        self.unbind('Leave')
-        self.unbind('Button-1')
+        # TODO: FIXME!
+        try:
+            self.unbind('Enter')
+            self.unbind('Leave')
+            self.unbind('Button-1')
+        except (_tkinter.TclError):
+            return
 
     def enter(self, event):
         self.is_hovering = True
