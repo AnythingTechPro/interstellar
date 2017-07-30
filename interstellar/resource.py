@@ -4,6 +4,7 @@ import time
 import pygame
 import Tkinter
 import tkFont
+import _tkinter
 from PIL import Image, ImageTk
 from interstellar import node, util, audio
 
