@@ -5,7 +5,7 @@ import pygame
 import Tkinter
 import tkFont
 from PIL import Image, ImageTk
-from interstellar import node, util
+from interstellar import node, util, audio
 
 class ResourceImageError(node.NodeError):
     """
@@ -273,8 +273,8 @@ class ResourceLabel(node.Node):
         self.is_hovering = False
         self.is_clicked = False
 
-        self.hover_sound = pygame.mixer.Sound('assets/audio/sfx/button_over.wav')
-        self.clicked_sound = pygame.mixer.Sound('assets/audio/sfx/button_down.wav')
+        self.hover_sound = audio.AudioSound('assets/audio/sfx/button_over.wav')
+        self.clicked_sound = audio.AudioSound('assets/audio/sfx/button_down.wav')
 
     @node.Node.parent.setter
     def parent(self, parent):
@@ -402,10 +402,7 @@ class ResourceLabel(node.Node):
 
     def exit(self, event):
         self.is_hovering = False
-
-        # instead of stopping the audio entirely, fade out to help reduce
-        # that annoying audio tearing...
-        self.hover_sound.fadeout(1)
+        self.hover_sound.stop()
         self.color = 'white'
 
         if self.exit_handler:
@@ -446,6 +443,8 @@ class ResourceLabel(node.Node):
     def destroy(self):
         self.hover_sound.stop()
         self.clicked_sound.stop()
+        self.hover_sound.destroy()
+        self.clicked_sound.destroy()
 
         del self._font
         self._font = None
@@ -489,7 +488,7 @@ class ResourceAudioArray(object):
         if not use_pygame:
             self.current = self.root.audio_manager.load(audio_filename, *args, **kwargs)
         else:
-            self.current = pygame.mixer.Sound(audio_filename)
+            self.current = audio.AudioSound(audio_filename)
 
         return self.current
 
@@ -499,9 +498,8 @@ class ResourceAudioArray(object):
         if not use_pygame:
             self.root.audio_manager.unload(self.current, *args, **kwargs)
         else:
-            # instead of stopping the audio entirely, fade out to help reduce
-            # that annoying audio tearing...
-            self.current.fadeout(1)
+            self.current.stop()
+            self.current.destroy()
 
         self.current = None
 

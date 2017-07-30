@@ -406,7 +406,7 @@ class GameLevel(Scene):
         self.explosion = resource.ResourceFrameImage(self.canvas,
             ['assets/explosion/%d.png' % index for index in xrange(15)], self.explosion_callback)
 
-        self.explosion_sound = pygame.mixer.Sound('assets/audio/sfx/explosion_0.wav')
+        self.explosion_sound = audio.AudioSound('assets/audio/sfx/explosion_0.wav')
 
         self.background = resource.ResourceScrolledImage(self.root, 'assets/stars.png')
         self.background.position = (self.master.width / 2, self.master.height / 2)
@@ -507,6 +507,9 @@ class GameLevel(Scene):
         self.asteroids.remove(asteroid)
 
     def explode(self, x, y):
+        if self.explosion_sound.playing:
+            self.explosion_sound.stop()
+
         self.explosion.can_play = True
         self.explosion.position = (x, y)
         self.explosion_sound.play()
@@ -524,6 +527,7 @@ class GameLevel(Scene):
         self.music_array.deselect()
         self.music_array.destroy()
         self.music.stop()
+        self.explosion_sound.destroy()
 
         self.distance_label.destroy()
         self.health_label.destroy()

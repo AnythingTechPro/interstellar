@@ -1,6 +1,6 @@
 import os
 import winsound
-import thread
+import pygame
 
 class AudioError(IOError):
     """
@@ -115,3 +115,44 @@ class AudioManager(object):
     def destroy(self):
         self.audio = []
         self.enabled = False
+
+class AudioSoundError(RuntimeError):
+    """
+    An audio sound specific runtime error
+    """
+
+class AudioSound(object):
+    """
+    A wrapper around pygame's mixer Sound component
+    """
+
+    def __init__(self, filepath):
+        if not os.path.exists(filepath):
+            raise AudioSoundError('Failed to load sound %s!' % filepath)
+
+        self.sound = pygame.mixer.Sound(filepath)
+        self.sound_playing = False
+
+    @property
+    def playing(self):
+        return self.sound_playing
+
+    def play(self):
+        if self.sound_playing:
+            return
+
+        self.sound.play()
+        self.sound_playing = True
+
+    def stop(self):
+        if not self.sound_playing:
+            return
+
+        # attempt to reduce audio tear...
+        self.sound.fadeout(1)
+        self.sound_playing = False
+
+    def destroy(self):
+        del self.sound
+        self.sound = None
+        self.sound_playing = False
