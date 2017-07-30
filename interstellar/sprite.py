@@ -1,7 +1,7 @@
 import random
 import pygame
 import time
-from interstellar import node, resource, controller, mechanism
+from interstellar import node, resource, audio, controller, mechanism
 
 class SpriteError(node.NodeError):
     """
@@ -20,6 +20,8 @@ class Sprite(node.Node):
         self.image = image
         self.controller = controller(self)
         self._attachment = None
+        self.attachment_sound = audio.AudioSound('assets/audio/sfx/grabbed_attachment.wav')
+        self.attachment_deny_sound = audio.AudioSound('assets/audio/sfx/grabbed_attachment_deny.wav')
 
         self.health = 0
         self.damage = 0
@@ -32,10 +34,19 @@ class Sprite(node.Node):
     @attachment.setter
     def attachment(self, attachment):
         if self._attachment or attachment is self._attachment:
+            if self.attachment_deny_sound.playing:
+                self.attachment_deny_sound.stop()
+
+            self.attachment_deny_sound.play()
             return
 
         self._attachment = attachment
         self.attachment.setup()
+
+        if self.attachment_sound.playing:
+            self.attachment_sound.stop()
+
+        self.attachment_sound.play()
 
     def hurt(self, attacker):
         if not self.can_damage:
@@ -72,6 +83,9 @@ class Sprite(node.Node):
 
         if self._attachment:
             self._attachment.destroy()
+
+        self.attachment_sound.destroy()
+        self.attachment_deny_sound.destroy()
 
 class SpriteController(node.Node):
     """
