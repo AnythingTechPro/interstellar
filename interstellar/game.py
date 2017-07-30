@@ -17,6 +17,7 @@ class GameDisplay(object):
         self._y = 0
         self._caption = ''
         self._resizable = True
+        self._icon_filename = ''
 
     @property
     def size(self):
@@ -109,6 +110,17 @@ class GameDisplay(object):
         self._resizable = resizable
         self.root.resizable(resizable, resizable)
 
+    @property
+    def icon(self):
+        return self._icon_filename
+
+    @icon.setter
+    def icon(self, icon_filename):
+        if icon_filename is self._icon_filename:
+            return
+
+        self.root.iconbitmap(icon_filename)
+
     def setup(self):
         self.root.configure(background='black')
 
@@ -130,6 +142,7 @@ class Game(object):
         # TODO: disable window resizing until dynamic window change event,
         # is implemented so all objects will resize appropriately.
         self.display.resizable = False
+        self.display.icon = 'assets/icon.ico'
 
         self.task_manager = task.TaskManager()
         self.audio_manager = audio.AudioManager()
