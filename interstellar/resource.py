@@ -357,26 +357,26 @@ class ResourceLabel(node.Node):
 
         self._color = color
 
-        if self.label:
-            self.label['foreground'] = color
+        if self._label:
+            self._label['foreground'] = color
 
     def bind(self, event, *args, **kwargs):
         if not self._label:
             return None
 
-        self._label.bind('<%s>' % event, *args, **kwargs)
+        return self._label.bind('<%s>' % event, *args, **kwargs)
 
     def unbind(self, event, *args, **kwargs):
         if not self._label:
             return None
 
-        self._label.unbind('<%s>' % event, *args, **kwargs)
+        return self._label.unbind('<%s>' % event, *args, **kwargs)
 
     def send(self, event, *args, **kwargs):
         if not self._label:
             return None
 
-        self._label.event_generate('<%s>' % event, *args, **kwargs)
+        return self._label.event_generate('<%s>' % event, *args, **kwargs)
 
     def bindall(self):
         self.bind('Enter', self.enter)
@@ -391,7 +391,7 @@ class ResourceLabel(node.Node):
     def enter(self, event):
         self.is_hovering = True
         self.hover_sound.play()
-        self.label['foreground'] = 'red'
+        self.color = 'red'
 
         if self.enter_handler:
             self.enter_handler()
@@ -402,7 +402,7 @@ class ResourceLabel(node.Node):
         # instead of stopping the audio entirely, fade out to help reduce
         # that annoying audio tearing...
         self.hover_sound.fadeout(1)
-        self.label['foreground'] = 'white'
+        self.color = 'white'
 
         if self.exit_handler:
             self.exit_handler()
@@ -422,7 +422,7 @@ class ResourceLabel(node.Node):
         pass
 
     def move(self):
-        self.label.place(x=self._x, y=self._y, anchor=Tkinter.CENTER)
+        self._label.place(x=self._x, y=self._y, anchor=Tkinter.CENTER)
 
     def render(self, parent):
         if not parent:

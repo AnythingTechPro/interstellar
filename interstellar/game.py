@@ -401,7 +401,7 @@ class GameLevel(Scene):
             'assets/audio/music/level_1.wav',
             'assets/audio/music/level_2.wav'])
 
-        self.music = self.music_array.select()
+        self.music = self.music_array.select(True)
 
         self.explosion = resource.ResourceFrameImage(self.canvas,
             ['assets/explosion/%d.png' % index for index in xrange(15)], self.explosion_callback)
@@ -417,14 +417,30 @@ class GameLevel(Scene):
         self.paused_label.position = (self.master.width / 2, self.master.height / 2)
         self.paused_label.text = 'Paused'
 
-        self.time_label = resource.ResourceTimerLabel(15, bind_events=False)
+        self.time_label = resource.ResourceTimerLabel(10, bind_events=False)
         self.time_label.position = (self.master.width / 15, self.master.height / 15)
         self.time_label.render(self.canvas)
+
+        self.distance_label = resource.ResourceTimerLabel(10, bind_events=False)
+        self.distance_label.position = (self.master.width / 1.2, self.master.height / 15)
+        self.distance_label.render(self.canvas)
+
+        self.health_label = resource.ResourceTimerLabel(10, bind_events=False)
+        self.health_label.position = (self.master.width / 15, self.master.height / 5)
+        self.health_label.render(self.canvas)
 
         self.ship = sprite.Ship(self, sprite.ShipController)
 
         self.asteroids = []
         self.maximum_asteroids = 20
+
+    @property
+    def distance(self):
+        return 'Distance: %d Meters' % self.ship.controller.current_distance
+
+    @property
+    def health(self):
+        return 'Health: %d' % self.ship.health
 
     def setup(self):
         super(GameLevel, self).setup()
@@ -438,6 +454,9 @@ class GameLevel(Scene):
 
         self.time_label.update()
         self.explosion.update()
+
+        self.distance_label.text = self.distance
+        self.health_label.text = self.health
 
         for asteroid in self.asteroids:
             asteroid.update()
@@ -481,6 +500,8 @@ class GameLevel(Scene):
         self.music_array.destroy()
         self.music.stop()
 
+        self.distance_label.destroy()
+        self.health_label.destroy()
         self.background.destroy()
         self.ship.destroy()
 

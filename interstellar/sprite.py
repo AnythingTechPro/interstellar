@@ -1,5 +1,6 @@
 import random
 import pygame
+import time
 from interstellar import node, resource, controller
 
 class SpriteError(node.NodeError):
@@ -18,6 +19,15 @@ class Sprite(node.Node):
         self._parent = parent
         self.image = image
         self.controller = controller(self)
+
+        self.health = 0
+        self.damage = 0
+
+    def hurt(self, attacker):
+        if not self.health:
+            return self.die()
+
+        self.health -= attacker.damage
 
     def die(self, *args, **kwargs):
         pass
@@ -104,6 +114,7 @@ class ShipController(SpriteController):
         self.fire_sound = None
 
         self.speed = 15
+        self.health = 100
         self.projectile_speed = 20
 
         self.moving_forward = False
@@ -116,6 +127,7 @@ class ShipController(SpriteController):
         self.maximum_projectiles = 15
 
         self.controller = controller.GameController(self)
+        self.current_distance = 0
 
     def setup(self):
         super(ShipController, self).setup()
@@ -167,10 +179,13 @@ class ShipController(SpriteController):
         self.controller.update()
 
     def move(self):
+        self.current_distance += self.speed
+
         if self.moving_forward and not self.image.y - self.image.height / 2 <= 0:
             self.image.y -= self.speed
         elif self.moving_backward and not self.image.y + self.image.height / 2 >= self._parent.root.display.height:
             self.image.y += self.speed / 2
+            self.current_distance -= self.speed / 2
 
         if self.moving_right and not self.image.x + self.image.width / 2 >= self._parent.root.display.width:
             self.image.x += self.speed
@@ -200,7 +215,7 @@ class ShipController(SpriteController):
         for asteroid in self._parent.asteroids:
 
             if projectile.collide_point(asteroid.image):
-                asteroid.die()
+                asteroid.hurt(self.sprite)
                 return True
 
         return False
@@ -209,7 +224,7 @@ class ShipController(SpriteController):
         for asteroid in self._parent.asteroids:
 
             if asteroid.image.collide_point(self.sprite.image):
-                return self.sprite.die()
+                return self.sprite.hurt(asteroid)
 
     def fire_projectile(self):
         if self.fire_sound:
@@ -267,6 +282,9 @@ class Ship(Sprite):
 
         super(Ship, self).__init__(parent, image, controller)
 
+        self.health = 100
+        self.damage = 5
+
     def die(self):
         self._parent.explode(self.image.x, self.image.y)
         self._parent.end()
@@ -299,6 +317,9 @@ class Asteroid(Sprite):
         image.render(parent.canvas)
 
         super(Asteroid, self).__init__(parent, image, controller)
+
+        self.health = 10
+        self.damage = 1
 
     def die(self):
         self._parent.explode(self.image.x, self.image.y)
