@@ -5,6 +5,7 @@ import thread
 import time
 import _tkinter
 import Tkinter
+from PIL import ImageGrab
 from interstellar import audio, util, resource, sprite, task, mechanism
 
 class GameDisplay(object):
@@ -119,6 +120,7 @@ class GameDisplay(object):
         if icon_filename is self._icon_filename:
             return
 
+        self._icon_filename = icon_filename
         self.root.iconbitmap(icon_filename)
 
     def setup(self):
@@ -218,6 +220,7 @@ class Scene(object):
             raise SceneError('Scene has already been setup!')
 
         self.bind('Configure', self.reconfigure)
+        self.bind('F1', self.take_screenshot)
 
         if self.can_pause:
             self.bind('KeyRelease-Return', self.toggle_pause)
@@ -265,12 +268,20 @@ class Scene(object):
     def unpause(self):
         pass
 
+    def take_screenshot(self, event):
+        # TODO: fix window margin values!
+        x1, y1 = self.master.x + 3, self.master.y + 26
+        x2, y2 = x1 + self.master.width, y1 + self.master.height
+        return ImageGrab.grab().crop((x1, y1, x2, y2)).save('screenshot-%d.jpg' % \
+            int(time.time()))
+
     def destroy(self):
         if not self.active:
             raise SceneError('Scene has not been setup!')
 
         self.active = False
         self.unbind('Configure')
+        self.unbind('F1')
 
         if self.can_pause:
             self.unbind('KeyRelease-Return')
