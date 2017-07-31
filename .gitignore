@@ -102,3 +102,6 @@ ENV/
 
 # Darwin directory cache
 *.DS_Store
+
+# Other
+*.json

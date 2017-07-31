@@ -146,22 +146,18 @@ class Game(object):
 
         self.task_manager = task.TaskManager()
         self.audio_manager = audio.AudioManager()
+        self.score_board = resource.ResourceScoreBoard()
         self.shutdown = False
-        self._last_scene = None
-        self._current_scene = scene(self, self.display)
+        self.last_scene = None
+        self.current_scene = scene(self, self.display)
 
-    @property
-    def current_scene(self):
-        return self._current_scene
+    def switch_scene(self, scene, *args, **kwargs):
+        if self.current_scene:
+            self.current_scene.destroy()
+            self.last_scene = self.current_scene
 
-    @current_scene.setter
-    def current_scene(self, scene):
-        if self._current_scene:
-            self._current_scene.destroy()
-            self._last_scene = self._current_scene
-
-        self._current_scene = scene(self, self.display)
-        self._current_scene.setup()
+        self.current_scene = scene(self, self.display, *args, **kwargs)
+        self.current_scene.setup()
 
     def setup(self):
         self.display.setup()
@@ -331,13 +327,13 @@ class MainMenu(Scene):
         self.options_button.clicked_handler = self.__options
 
     def __play(self):
-        self.root.current_scene = GameLevel
+        self.root.switch_scene(GameLevel)
 
     def __quit(self):
         self.root.shutdown = True
 
     def __options(self):
-        self.root.current_scene = OptionsMenu
+        self.root.switch_scene(OptionsMenu)
 
     def destroy(self):
         self.music_array.deselect()
@@ -389,7 +385,7 @@ class OptionsMenu(Scene):
         self.music_button.clicked_handler = self.__toggle_audio
 
     def __back(self):
-        self.root.current_scene = MainMenu
+        self.root.switch_scene(MainMenu)
 
     def __toggle_audio(self):
         self.root.audio_manager.toggle()
@@ -461,7 +457,7 @@ class GameLevel(Scene):
 
     @property
     def distance(self):
-        return 'Distance: %d Meters' % self.ship.controller.current_distance
+        return 'Distance: %d IAU' % self.ship.controller.current_distance
 
     @property
     def health(self):
@@ -533,7 +529,10 @@ class GameLevel(Scene):
         self.paused_label.derender()
 
     def end(self):
-        self.root.current_scene = DeathMenu
+        high_score = self.root.score_board.is_high_score(self.ship.controller.current_distance)
+        self.root.score_board.score = self.ship.controller.current_distance
+
+        self.root.switch_scene(DeathMenu, high_score)
 
     def destroy(self):
         self.music_array.deselect()
@@ -562,8 +561,10 @@ class DeathMenu(Scene):
     A scene that will take place after the player dies
     """
 
-    def __init__(self, root, master):
+    def __init__(self, root, master, is_high_score):
         super(DeathMenu, self).__init__(root, master)
+
+        self.is_high_score = is_high_score
 
         self.music = self.root.audio_manager.load('assets/audio/music/ending.wav', True)
 
@@ -572,34 +573,42 @@ class DeathMenu(Scene):
         self.death_label.text = 'You Died!'
         self.death_label.render(self.canvas)
 
+        self.score_label = resource.ResourceLabel(30, bind_events=False)
+        self.score_label.position = (self.master.width / 5, self.master.height / 2)
+        self.score_label.text = '%s\n%d IAU' % ('High Score!' if is_high_score else 'Score:', self.root.score_board.score)
+        self.score_label.render(self.canvas)
+
         self.replay_button = resource.ResourceLabel(40)
-        self.replay_button.position = (self.master.width / 2, self.master.height / 2)
+        self.replay_button.position = (self.master.width / 1.2, self.master.height / 2)
         self.replay_button.text = 'Retry'
         self.replay_button.render(self.canvas)
 
-        self.main_menu = resource.ResourceLabel(40)
-        self.main_menu.position = (self.master.width / 2, self.master.height / 1.5)
-        self.main_menu.text = 'Return To Menu'
-        self.main_menu.render(self.canvas)
+        self.main_menu_button = resource.ResourceLabel(40)
+        self.main_menu_button.position = (self.master.width / 1.5, self.master.height / 1.5)
+        self.main_menu_button.text = 'Return To Menu'
+        self.main_menu_button.render(self.canvas)
 
     def setup(self):
         super(DeathMenu, self).setup()
 
         self.music.play()
 
-        self.replay_button.clicked_handler = self.__goto_level
-        self.main_menu.clicked_handler = self.__goto_main_menu
+        self.replay_button.clicked_handler = self.__replay
+        self.main_menu_button.clicked_handler = self.__main_menu
 
-    def __goto_level(self):
-        self.root.current_scene = GameLevel
+    def __replay(self):
+        self.root.switch_scene(GameLevel)
 
-    def __goto_main_menu(self):
-        self.root.current_scene = MainMenu
+    def __main_menu(self):
+        self.root.switch_scene(MainMenu)
 
     def destroy(self):
         self.music.stop()
         self.root.audio_manager.unload(self.music)
 
         self.death_label.destroy()
+        self.score_label.destroy()
+        self.replay_button.destroy()
+        self.main_menu_button.destroy()
 
         super(DeathMenu, self).destroy()

@@ -5,6 +5,9 @@ import pygame
 import Tkinter
 import tkFont
 import _tkinter
+import base64
+import zlib
+import json
 from PIL import Image, ImageTk
 from interstellar import node, util, audio
 
@@ -560,3 +563,58 @@ class ResourceTimerLabel(ResourceLabel):
         self.timer = None
 
         super(ResourceTimerLabel, self).setup()
+
+class ResourceScoreBoard(object):
+    """
+    A class that manages and tracks scores, high scores
+    """
+
+    def __init__(self):
+        self.filename = 'userdata.json'
+        self.data = {
+            'score': 0,
+            'high_score': 0,
+        }
+
+        if not os.path.exists(self.filename):
+            self.write()
+
+        self.read()
+
+    @property
+    def score(self):
+        return self.data['score']
+
+    @score.setter
+    def score(self, score):
+        self.data['score'] = score
+
+        if self.is_high_score:
+            self.high_score = score
+
+        self.write()
+
+    @property
+    def high_score(self):
+        return self.data['high_score']
+
+    @high_score.setter
+    def high_score(self, high_score):
+        self.data['high_score'] = high_score
+        self.write()
+
+    def is_high_score(self, score):
+        return score > self.high_score
+
+    def read(self):
+        with open(self.filename, 'rb') as file:
+            self.data = json.loads(zlib.decompress(file.read())); file.close()
+
+    def write(self):
+        with open(self.filename, 'wb') as file:
+            data = zlib.compress(json.dumps(self.data))
+
+            if not data:
+                file.close(); return
+
+            file.write(data); file.close()
