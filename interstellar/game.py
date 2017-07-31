@@ -314,7 +314,7 @@ class MainMenu(Scene):
         self.testing_notice = resource.ResourceLabel(10, bind_events=False)
         self.testing_notice.position = (self.master.width / 11.8, (self.master.height / 4) * 3.9)
         self.testing_notice.text = 'Experimental build!'
-        self.testing_notice.color = 'red'
+        self.testing_notice.color = 'blue'
         self.testing_notice.render(self.canvas)
 
     def setup(self):
@@ -356,6 +356,7 @@ class OptionsMenu(Scene):
         self.options_label = resource.ResourceLabel(40, bind_events=False)
         self.options_label.position = (self.master.width / 2, self.master.height / 10)
         self.options_label.text = 'Game Options:'
+        self.options_label.color = 'yellow'
         self.options_label.render(self.canvas)
 
         self.audio_label = resource.ResourceLabel(40, bind_events=False)
