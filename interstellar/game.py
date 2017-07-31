@@ -312,8 +312,8 @@ class MainMenu(Scene):
         self.quit_button.render(self.canvas)
 
         self.testing_notice = resource.ResourceLabel(10, bind_events=False)
-        self.testing_notice.position = (self.master.width / 8.4, (self.master.height / 4) * 3.9)
-        self.testing_notice.text = 'NOTICE: Experimental build!'
+        self.testing_notice.position = (self.master.width / 11.8, (self.master.height / 4) * 3.9)
+        self.testing_notice.text = 'Experimental build!'
         self.testing_notice.color = 'red'
         self.testing_notice.render(self.canvas)
 
