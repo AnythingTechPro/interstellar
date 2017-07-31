@@ -103,6 +103,9 @@ ENV/
 # Darwin directory cache
 *.DS_Store
 
+# Nuitka build director:
+distributable/
+
 # Other
 *.json
 *.jpg
