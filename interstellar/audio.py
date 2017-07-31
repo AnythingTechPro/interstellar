@@ -138,7 +138,7 @@ class AudioSound(object):
         return self.sound_playing
 
     def play(self):
-        if self.sound_playing:
+        if self.sound_playing or not game.audio_manager.enabled:
             return
 
         self.sound.play()

@@ -358,15 +358,15 @@ class OptionsMenu(Scene):
         self.options_label.text = 'Game Options:'
         self.options_label.render(self.canvas)
 
-        self.music_label = resource.ResourceLabel(40, bind_events=False)
-        self.music_label.position = (self.master.width / 2.5, self.master.height / 3)
-        self.music_label.text = 'Music:'
-        self.music_label.render(self.canvas)
+        self.audio_label = resource.ResourceLabel(40, bind_events=False)
+        self.audio_label.position = (self.master.width / 2.5, self.master.height / 3)
+        self.audio_label.text = 'Audio:'
+        self.audio_label.render(self.canvas)
 
-        self.music_button = resource.ResourceLabel(40)
-        self.music_button.position = (self.master.width / 1.5, self.master.height / 3)
-        self.music_button.text = self.music_active
-        self.music_button.render(self.canvas)
+        self.audio_button = resource.ResourceLabel(40)
+        self.audio_button.position = (self.master.width / 1.5, self.master.height / 3)
+        self.audio_button.text = self.music_active
+        self.audio_button.render(self.canvas)
 
         self.back_button = resource.ResourceLabel(40)
         self.back_button.position = (self.master.width / 10.7, (self.master.height / 4) * 3.7)
@@ -382,20 +382,20 @@ class OptionsMenu(Scene):
 
         self.music.play()
         self.back_button.clicked_handler = self.__back
-        self.music_button.clicked_handler = self.__toggle_audio
+        self.audio_button.clicked_handler = self.__toggle_audio
 
     def __back(self):
         self.root.switch_scene(MainMenu)
 
     def __toggle_audio(self):
         self.root.audio_manager.toggle()
-        self.music_button.text = self.music_active
+        self.audio_button.text = self.music_active
 
     def destroy(self):
         self.root.audio_manager.unload(self.music)
         self.options_label.destroy()
-        self.music_label.destroy()
-        self.music_button.destroy()
+        self.audio_label.destroy()
+        self.audio_button.destroy()
         self.back_button.destroy()
 
         super(OptionsMenu, self).destroy()
