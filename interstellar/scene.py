@@ -151,7 +151,7 @@ class MainMenu(Scene):
         self.options_button.clicked_handler = self.__options
 
     def __play(self):
-        self.root.switch_scene(GameLevel)
+        self.root.switch_scene(GameLevelCountdown)
 
     def __quit(self):
         self.root.shutdown = True
@@ -225,6 +225,39 @@ class OptionsMenu(Scene):
 
         super(OptionsMenu, self).destroy()
 
+class GameLevelCountdown(Scene):
+
+    def __init__(self, root, master):
+        super(GameLevelCountdown, self).__init__(root, master, can_pause=True)
+
+        self.start_countdown = resource.ResourceStopWatchLabel(self, self.master.width / 2, self.master.height / 2, 3,
+            self.countdown_callback, self.countdown_callback_done)
+
+        self.countdown_done = False
+
+    def setup(self):
+        super(GameLevelCountdown, self).setup()
+
+        self.start_countdown.setup()
+
+    def countdown_callback(self):
+        pass
+
+    def countdown_callback_done(self):
+        self.countdown_done = True
+
+    def update(self):
+        super(GameLevelCountdown, self).update()
+
+        if self.countdown_done:
+            self.root.switch_scene(GameLevel)
+
+    def destroy(self):
+        self.start_countdown.destroy()
+        self.start_countdown = None
+
+        super(GameLevelCountdown, self).destroy()
+
 class GameLevel(Scene):
 
     def __init__(self, root, master):
@@ -249,6 +282,7 @@ class GameLevel(Scene):
         self.paused_label = resource.ResourceLabel(40, bind_events=False)
         self.paused_label.position = (self.master.width / 2, self.master.height / 2)
         self.paused_label.text = 'Paused'
+        self.use_paused_label = True
 
         self.time_label = resource.ResourceTimerLabel(10, bind_events=False)
         self.time_label.position = (self.master.width / 15, self.master.height / 15)
@@ -334,15 +368,16 @@ class GameLevel(Scene):
         self.explosion_sound.play()
 
     def pause(self):
-        self.paused_label.render(self.canvas)
+        if self.use_paused_label:
+            self.paused_label.render(self.canvas)
 
     def unpause(self):
-        self.paused_label.derender()
+        if self.paused_label.parent:
+            self.paused_label.derender()
 
     def end(self):
         high_score = self.root.score_board.is_high_score(self.ship.controller.current_distance)
         self.root.score_board.score = self.ship.controller.current_distance
-
         self.root.switch_scene(DeathMenu, high_score)
 
     def destroy(self):
@@ -414,7 +449,7 @@ class DeathMenu(Scene):
         self.main_menu_button.clicked_handler = self.__main_menu
 
     def __replay(self):
-        self.root.switch_scene(GameLevel)
+        self.root.switch_scene(GameLevelCountdown)
 
     def __main_menu(self):
         self.root.switch_scene(MainMenu)

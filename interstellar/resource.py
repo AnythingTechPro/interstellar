@@ -435,11 +435,11 @@ class ResourceLabel(node.Node):
 
         self.parent = parent
 
-    def derender(self):
+    def unrender(self):
         if not self._parent:
             raise ResourceLabelError('Cannot detach image from invalid parent!')
 
-        self._label.pack_forget()
+        self._label.forget()
         self._label.destroy()
 
         self._parent = None
@@ -455,7 +455,7 @@ class ResourceLabel(node.Node):
 
         if self._label:
             self.unbindall()
-            self._label.destroy()
+            self.unrender()
 
         self.font_size = 0
         self.font_family = 0
@@ -618,3 +618,64 @@ class ResourceScoreBoard(object):
                 file.close(); return
 
             file.write(data); file.close()
+
+class ResourceStopWatchError(RuntimeError):
+    """
+    A stop watch specific runtime error
+    """
+
+class ResourceStopWatch(object):
+    """
+    A timer that counts backwards and callsback
+    """
+
+    def __init__(self, countdown_to, start_callback, stop_callback):
+        self.current_time = countdown_to
+        self.start_callback = start_callback
+        self.stop_callback = stop_callback
+        self.delay = 0.1
+
+    def setup(self):
+        if not callable(self.start_callback):
+            raise ResourceStopWatchError('Failed to call start callback!')
+
+        self.start_callback()
+        self.update_task = game.task_manager.add_delayed(self.delay,
+            self.update)
+
+    def update(self, task):
+        if self.current_time <= 0:
+            if not callable(self.stop_callback):
+                raise ResourceStopWatchError('Failed to call stop callback!')
+
+            self.stop_callback(); return task.done
+
+        self.current_time -= self.delay
+        self.explicit_update()
+        return task.wait
+
+    def explicit_update(self):
+        pass
+
+    def destroy(self):
+        pass
+
+class ResourceStopWatchLabel(ResourceStopWatch):
+    """
+    A stop watch timer with a countdown label
+    """
+
+    def __init__(self, master, x, y, countdown_to, start_callback, stop_callback):
+        super(ResourceStopWatchLabel, self).__init__(countdown_to, start_callback, stop_callback)
+
+        self.label = ResourceLabel(40, bind_events=False)
+        self.label.position = (x, y)
+        self.label.text = '%d' % self.current_time
+        self.label.render(master.canvas)
+
+    def explicit_update(self):
+        self.label.text = '%d' % self.current_time
+
+    def destroy(self):
+        self.label.destroy()
+        self.label = None
