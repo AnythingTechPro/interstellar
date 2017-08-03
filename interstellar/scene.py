@@ -282,7 +282,6 @@ class GameLevel(Scene):
         self.paused_label = resource.ResourceLabel(40, bind_events=False)
         self.paused_label.position = (self.master.width / 2, self.master.height / 2)
         self.paused_label.text = 'Paused'
-        self.use_paused_label = True
 
         self.time_label = resource.ResourceTimerLabel(10, bind_events=False)
         self.time_label.position = (self.master.width / 15, self.master.height / 15)
@@ -368,12 +367,10 @@ class GameLevel(Scene):
         self.explosion_sound.play()
 
     def pause(self):
-        if self.use_paused_label:
-            self.paused_label.render(self.canvas)
+        self.paused_label.render(self.canvas)
 
     def unpause(self):
-        if self.paused_label.parent:
-            self.paused_label.derender()
+        self.paused_label.unrender()
 
     def end(self):
         high_score = self.root.score_board.is_high_score(self.ship.controller.current_distance)
