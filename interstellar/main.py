@@ -1,6 +1,6 @@
 import __builtin__
 import pygame
-from interstellar.game import Game, MainMenu
+from interstellar import game, scene
 
 def main():
     pygame.display.init()
@@ -8,9 +8,9 @@ def main():
     pygame.mixer.set_num_channels(32)
     pygame.joystick.init()
 
-    __builtin__.game = Game(MainMenu)
-    game.setup()
-    game.mainloop()
+    __builtin__.game = game.Game(scene.MainMenu)
+    __builtin__.game.setup()
+    __builtin__.game.mainloop()
 
 if __name__ == '__main__':
     main()
