@@ -589,7 +589,7 @@ class ResourceScoreBoard(object):
     def score(self, score):
         self.data['score'] = score
 
-        if self.is_high_score:
+        if self.is_high_score(score):
             self.high_score = score
 
         self.write()

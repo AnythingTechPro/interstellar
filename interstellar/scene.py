@@ -381,11 +381,18 @@ class DeathMenu(Scene):
         self.death_label = resource.ResourceLabel(40, bind_events=False)
         self.death_label.position = (self.master.width / 2, self.master.height / 4)
         self.death_label.text = 'You Died!'
+        self.death_label.color = 'yellow'
         self.death_label.render(self.canvas)
 
         self.score_label = resource.ResourceLabel(30, bind_events=False)
         self.score_label.position = (self.master.width / 5, self.master.height / 2)
-        self.score_label.text = '%s\n%d IAU' % ('High Score!' if is_high_score else 'Score:', self.root.score_board.score)
+        self.score_label.color = 'blue'
+
+        if is_high_score:
+            self.score_label.text = '%s\n%d IAU' % ('High Score!', self.root.score_board.score)
+        else:
+            self.score_label.text = '%s\n%d IAU\n%s\n%d IAU' % ('Score:', self.root.score_board.score, 'Best:', self.root.score_board.high_score)
+
         self.score_label.render(self.canvas)
 
         self.replay_button = resource.ResourceLabel(40)
