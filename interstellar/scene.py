@@ -83,7 +83,6 @@ class Scene(object):
         pass
 
     def take_screenshot(self, event):
-        # TODO: fix window margin values!
         x1, y1 = self.master.x + 3, self.master.y + 26
         x2, y2 = x1 + self.master.width, y1 + self.master.height
         return ImageGrab.grab().crop((x1, y1, x2, y2)).save('screenshot-%d.jpg' % \

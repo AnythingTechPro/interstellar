@@ -8,16 +8,17 @@ class AudioError(IOError):
     """
 
 class Audio(object):
-    __slots__ = ('audio_manager', 'filename', 'loop', 'no_stop', 'pending', 'playing')
+    """
+    Wrapper around pygame's sound module using mixer
+    """
 
-    def __init__(self, audio_manager, filename, loop=False, no_stop=False):
+    def __init__(self, audio_manager, filename, loop=False):
         if not os.path.exists(filename):
             raise AudioError('Failed to find audio file %s!' % filename)
 
         self.audio_manager = audio_manager
         self.filename = filename
         self.loop = loop
-        self.no_stop = no_stop
         self.pending = False
         self.playing = False
 
@@ -25,22 +26,15 @@ class Audio(object):
         if self.playing or not self.audio_manager.enabled:
             return
 
-        flags = winsound.SND_FILENAME | winsound.SND_ASYNC
-
-        if self.loop:
-            flags |= winsound.SND_LOOP
-
-        if self.no_stop:
-            flags |= winsound.SND_NOSTOP
-
-        winsound.PlaySound(self.filename, flags)
+        pygame.mixer.music.load(self.filename)
+        pygame.mixer.music.play(-1 if self.loop else 1)
         self.playing = True
 
     def stop(self):
         if not self.playing:
             return
 
-        winsound.PlaySound(self.filename, winsound.SND_PURGE | winsound.SND_ASYNC)
+        pygame.mixer.music.fadeout(1)
         self.playing = False
 
     def destroy(self):
@@ -52,7 +46,9 @@ class Audio(object):
         self.playing = False
 
 class AudioManager(object):
-    __slots__ = ('audio', 'enabled')
+    """
+    A class that manages all audio wrappers
+    """
 
     def __init__(self):
         self.audio = []
