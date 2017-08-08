@@ -5,7 +5,6 @@ import pygame
 import Tkinter
 import tkFont
 import _tkinter
-import base64
 import zlib
 import json
 from PIL import Image, ImageTk

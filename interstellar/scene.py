@@ -1,7 +1,3 @@
-import os
-import pygame
-import random
-import thread
 import time
 import Tkinter
 from PIL import ImageGrab
