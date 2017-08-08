@@ -1,5 +1,4 @@
 import os
-import winsound
 import pygame
 
 class AudioError(IOError):
